@@ -1,19 +1,19 @@
-kafka:
-  clusters:
-    - name: 本地kafka
-      bootstrapServers: localhost:9092
-      # start ---- 通过9093加证书方式连接需要以下配置
-      ssl:
-        truststoreLocation: path-to-truststore.jks
-        truststorePassword: password
-      sslKeystoreConfig:
-        keystoreLocation: path-to-keystore.jks
-        keystorePassword: password
-      # end ----
-
-    # 其他集群在下面继续添加，配置如上
-    # - name: other-cluster
-    #   bootstrapServers: ip:9092
+#kafka:
+#  clusters:
+#    - name: 本地kafka
+#      bootstrapServers: localhost:9092
+#      # start ---- 通过9093加证书方式连接需要以下配置
+#      ssl:
+#        truststoreLocation: path-to-truststore.jks
+#        truststorePassword: password
+#      sslKeystoreConfig:
+#        keystoreLocation: path-to-keystore.jks
+#        keystorePassword: password
+#      # end ----
+#
+#    # 其他集群在下面继续添加，配置如上
+#    # - name: other-cluster
+#    #   bootstrapServers: ip:9092
 
 dynamic.config.enabled: true # 是否开启动态配置
 dynamic.config.path: ./dynamic-config.yaml # 动态配置文件的路径
