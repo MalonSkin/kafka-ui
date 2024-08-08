@@ -85,17 +85,17 @@ const NavBar: React.FC<Props> = ({ onBurgerClick }) => {
           isThemeMode
         />
         <S.SocialLink
-          href="https://github.com/provectus/kafka-ui"
+          href="https://github.com/MalonSkin/kafka-ui"
           target="_blank"
         >
           <GitIcon />
         </S.SocialLink>
-        <S.SocialLink
-          href="https://discord.com/invite/4DWzD7pGE5"
-          target="_blank"
-        >
-          <DiscordIcon />
-        </S.SocialLink>
+        {/* <S.SocialLink */}
+        {/*  href="https://discord.com/invite/4DWzD7pGE5" */}
+        {/*  target="_blank" */}
+        {/* > */}
+        {/*  <DiscordIcon /> */}
+        {/* </S.SocialLink> */}
         <UserInfo />
       </S.NavbarSocial>
     </S.Navbar>
