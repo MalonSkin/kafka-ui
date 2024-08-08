@@ -1,5 +1,42 @@
+#kafka:
+#  clusters:
+#    - name: 本地kafka
+#      bootstrapServers: localhost:9092
+#      # start ---- 通过9093加证书方式连接需要以下配置
+#      ssl:
+#        truststoreLocation: path-to-truststore.jks
+#        truststorePassword: password
+#      sslKeystoreConfig:
+#        keystoreLocation: path-to-keystore.jks
+#        keystorePassword: password
+#      # end ----
+#
+#    # 其他集群在下面继续添加，配置如上
+#    # - name: other-cluster
+#    #   bootstrapServers: ip:9092
+
+dynamic.config.enabled: true # 是否开启动态配置
+dynamic.config.path: ./dynamic-config.yaml # 动态配置文件的路径
+config.related.uploads.dir: ./uploads # 上传文件的存放路径，存放与配置相关的文件（如信任库和密钥库）。
+
+spring:
+  security:
+    user:
+      name: admin
+      password: 123456
+
 auth:
-  type: DISABLED
+  type: DISABLED #LOGIN_FORM(需要登录) # DISABLED(不需要登录)
+
+server:
+  port: 9090
+
+logging:
+  level:
+    root: INFO
+    com.provectus: DEBUG
+    reactor.netty.http.server.AccessLog: INFO
+    org.hibernate.validator: WARN
 
 management:
   endpoint:
@@ -11,11 +48,3 @@ management:
     web:
       exposure:
         include: "info,health,prometheus"
-
-logging:
-  level:
-    root: INFO
-    com.provectus: DEBUG
-    reactor.netty.http.server.AccessLog: INFO
-    org.hibernate.validator: WARN
-
