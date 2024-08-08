@@ -51,6 +51,19 @@ export function useUpdateAppConfig({ initialName }: { initialName?: string }) {
   );
 }
 
+export function useDeleteAppConfig({ clusterName }: { clusterName: string }) {
+  const client = useQueryClient();
+
+  return useMutation(
+    async () => {
+      await api.deleteApplicationConfig({ clusterName });
+    },
+    {
+      onSuccess: () => client.invalidateQueries(['app', 'config']),
+    }
+  );
+}
+
 export function useAppConfigFilesUpload() {
   return useMutation((payload: FormData) =>
     fetch('/api/config/relatedfiles', {

@@ -7,14 +7,6 @@ import com.provectus.kafka.ui.config.auth.OAuthProperties;
 import com.provectus.kafka.ui.config.auth.RoleBasedAccessControlProperties;
 import com.provectus.kafka.ui.exception.FileUploadException;
 import com.provectus.kafka.ui.exception.ValidationException;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.time.Instant;
-import java.util.Optional;
-import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +30,15 @@ import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
 import reactor.core.publisher.Mono;
+
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.time.Instant;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor

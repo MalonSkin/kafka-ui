@@ -22,6 +22,7 @@ const KafkaCluster: React.FC = () => {
   });
 
   const hasTrustStore = !!watch('truststore');
+  const hasSslKeystore = !!watch('sslKeystore');
 
   const toggleSection = (section: string) => () =>
     setValue(
@@ -108,6 +109,14 @@ const KafkaCluster: React.FC = () => {
         onClick={toggleSection('truststore')}
       />
       {hasTrustStore && <SSLForm prefix="truststore" title="Truststore" />}
+      <hr />
+      <SectionHeader
+        title="SSL Keystore"
+        addButtonText="Configure SSL Keystore"
+        adding={!hasSslKeystore}
+        onClick={toggleSection('sslKeystore')}
+      />
+      {hasSslKeystore && <SSLForm prefix="sslKeystore" title="SSL Keystore" />}
     </>
   );
 };

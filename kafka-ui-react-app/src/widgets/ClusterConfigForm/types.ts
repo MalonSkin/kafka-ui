@@ -42,6 +42,10 @@ export type ClusterConfigFormValues = {
     location: string;
     password: string;
   };
+  sslKeystore?: {
+    location: string;
+    password: string;
+  };
   auth?: WithKeystore & {
     method: string;
     securityProtocol: SecurityProtocol;

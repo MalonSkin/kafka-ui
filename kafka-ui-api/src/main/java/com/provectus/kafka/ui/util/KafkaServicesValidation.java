@@ -2,6 +2,7 @@ package com.provectus.kafka.ui.util;
 
 import static com.provectus.kafka.ui.config.ClustersProperties.TruststoreConfig;
 
+import com.provectus.kafka.ui.config.ClustersProperties;
 import com.provectus.kafka.ui.connect.api.KafkaConnectClientApi;
 import com.provectus.kafka.ui.model.ApplicationPropertyValidationDTO;
 import com.provectus.kafka.ui.service.ReactiveAdminClient;
@@ -13,11 +14,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Supplier;
-import javax.annotation.Nullable;
 import javax.net.ssl.TrustManagerFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
+import org.apache.kafka.common.config.SslConfigs;
 import org.springframework.util.ResourceUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -60,13 +62,31 @@ public final class KafkaServicesValidation {
     return Optional.empty();
   }
 
-  public static Mono<ApplicationPropertyValidationDTO> validateClusterConnection(String bootstrapServers,
-                                                                                 Properties clusterProps,
-                                                                                 @Nullable
-                                                                                 TruststoreConfig ssl) {
+  private static Properties convertProperties(Map<String, Object> propertiesMap) {
+    Properties properties = new Properties();
+    if (propertiesMap != null) {
+      properties.putAll(propertiesMap);
+    }
+    return properties;
+  }
+
+  public static Mono<ApplicationPropertyValidationDTO> validateClusterConnection(
+      ClustersProperties.Cluster clusterProperties) {
+    String bootstrapServers = clusterProperties.getBootstrapServers();
+    Properties clusterProps = convertProperties(clusterProperties.getProperties());
+    TruststoreConfig ssl = clusterProperties.getSsl();
+    ClustersProperties.KeystoreConfig sslKeystoreConfig = clusterProperties.getSslKeystoreConfig();
+
     Properties properties = new Properties();
     SslPropertiesUtil.addKafkaSslProperties(ssl, properties);
+    // 设置SSL的Keystore配置
+    SslPropertiesUtil.addKafkaSslKeyStoreConfig(sslKeystoreConfig, properties);
+    // 设置其他参数
     properties.putAll(clusterProps);
+    // 默认设置禁用主机名验证
+    if (!clusterProps.containsKey(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG)) {
+      properties.put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, StringUtils.EMPTY);
+    }
     properties.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
     // editing properties to make validation faster
     properties.put(AdminClientConfig.RETRIES_CONFIG, 1);

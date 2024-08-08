@@ -51,6 +51,13 @@ export const transformFormDataToPayload = (data: ClusterConfigFormValues) => {
     };
   }
 
+  if (data.sslKeystore) {
+    config.sslKeystoreConfig = {
+      keystoreLocation: data.sslKeystore?.location,
+      keystorePassword: data.sslKeystore?.password,
+    };
+  }
+
   // Schema Registry
   if (data.schemaRegistry) {
     config.schemaRegistry = data.schemaRegistry.url;

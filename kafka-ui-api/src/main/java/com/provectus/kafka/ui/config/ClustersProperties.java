@@ -51,6 +51,7 @@ public class ClustersProperties {
     List<Masking> masking;
     Long pollingThrottleRate;
     TruststoreConfig ssl;
+    KeystoreConfig sslKeystoreConfig;
     AuditProperties audit;
   }
 

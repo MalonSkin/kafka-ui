@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => {
       }),
     ],
     server: {
-      port: 3000,
+      port: 30000,
     },
     build: {
       outDir: 'build',
@@ -65,7 +65,7 @@ export default defineConfig(({ mode }) => {
       ...defaultConfig,
       server: {
         ...defaultConfig.server,
-        open: true,
+        open: false, // true，windows会报错
         proxy: {
           '/api': {
             target: proxy,

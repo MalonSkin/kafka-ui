@@ -3,6 +3,14 @@ package com.provectus.kafka.ui.service;
 import com.provectus.kafka.ui.config.ClustersProperties;
 import com.provectus.kafka.ui.model.KafkaCluster;
 import com.provectus.kafka.ui.util.SslPropertiesUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.AdminClientConfig;
+import org.apache.kafka.common.config.SslConfigs;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
+
 import java.io.Closeable;
 import java.time.Instant;
 import java.util.Map;
@@ -10,11 +18,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.admin.AdminClient;
-import org.apache.kafka.clients.admin.AdminClientConfig;
-import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
@@ -43,7 +46,13 @@ public class AdminClientServiceImpl implements AdminClientService, Closeable {
     return Mono.fromSupplier(() -> {
       Properties properties = new Properties();
       SslPropertiesUtil.addKafkaSslProperties(cluster.getOriginalProperties().getSsl(), properties);
+      // 设置SSL的Keystore配置
+      SslPropertiesUtil.addKafkaSslKeyStoreConfig(cluster.getOriginalProperties().getSslKeystoreConfig(), properties);
       properties.putAll(cluster.getProperties());
+      // 默认设置禁用主机名验证
+      if (!cluster.getProperties().containsKey(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG)) {
+        properties.put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, StringUtils.EMPTY);
+      }
       properties.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, cluster.getBootstrapServers());
       properties.putIfAbsent(AdminClientConfig.REQUEST_TIMEOUT_MS_CONFIG, clientTimeout);
       properties.putIfAbsent(

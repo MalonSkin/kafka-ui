@@ -85,7 +85,7 @@ export const AUTH_OPTIONS: SelectOption[] = [
   { value: 'Delegation tokens', label: 'Delegation tokens' },
   { value: 'SASL/LDAP', label: 'SASL/LDAP' },
   { value: 'SASL/AWS IAM', label: 'SASL/AWS IAM' },
-  { value: 'mTLS', label: 'mTLS' },
+  // { value: 'mTLS', label: 'mTLS' },
 ];
 
 export const SECURITY_PROTOCOL_OPTIONS: SelectOption[] = [

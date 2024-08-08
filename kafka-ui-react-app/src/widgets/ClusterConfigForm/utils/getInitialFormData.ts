@@ -35,6 +35,7 @@ export const getInitialFormData = (
 ) => {
   const {
     ssl,
+    sslKeystoreConfig,
     schemaRegistry,
     schemaRegistryAuth,
     schemaRegistrySsl,
@@ -52,11 +53,19 @@ export const getInitialFormData = (
   };
 
   const { truststoreLocation, truststorePassword } = ssl || {};
+  const { keystoreLocation, keystorePassword } = sslKeystoreConfig || {};
 
   if (truststoreLocation && truststorePassword) {
     initialValues.truststore = {
       location: truststoreLocation,
       password: truststorePassword,
+    };
+  }
+
+  if (keystoreLocation && keystorePassword) {
+    initialValues.sslKeystore = {
+      location: keystoreLocation,
+      password: keystorePassword,
     };
   }
 

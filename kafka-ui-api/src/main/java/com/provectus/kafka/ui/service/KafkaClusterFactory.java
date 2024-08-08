@@ -85,11 +85,7 @@ public class KafkaClusterFactory {
     }
 
     return Mono.zip(
-        KafkaServicesValidation.validateClusterConnection(
-            clusterProperties.getBootstrapServers(),
-            convertProperties(clusterProperties.getProperties()),
-            clusterProperties.getSsl()
-        ),
+        KafkaServicesValidation.validateClusterConnection(clusterProperties),
         schemaRegistryConfigured(clusterProperties)
             ? KafkaServicesValidation.validateSchemaRegistry(
                 () -> schemaRegistryClient(clusterProperties)).map(Optional::of)

@@ -2012,6 +2012,20 @@ paths:
       responses:
         200:
           description: OK
+    delete:
+      tags:
+        - ApplicationConfig
+      summary: Delete and restarts application with specified configuration
+      operationId: deleteApplicationConfig
+      parameters:
+        - name: clusterName
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
 
   /api/config/validated:
     put:
@@ -3954,6 +3968,13 @@ components:
                           password:
                             type: string
                       schemaRegistrySsl:
+                        type: object
+                        properties:
+                          keystoreLocation:
+                            type: string
+                          keystorePassword:
+                            type: string
+                      sslKeystoreConfig:
                         type: object
                         properties:
                           keystoreLocation:

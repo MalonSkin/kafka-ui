@@ -172,6 +172,8 @@
                                 <configuration>
                                     <nodeVersion>${node.version}</nodeVersion>
                                     <pnpmVersion>${pnpm.version}</pnpmVersion>
+                                    <!-- 指定国内源 -->
+                                    <pnpmDownloadRoot>https://registry.npmmirror.com/npmp/-/</pnpmDownloadRoot>
                                 </configuration>
                             </execution>
                             <execution>
