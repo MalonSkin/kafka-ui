@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 public class GithubReleaseInfo {
 
   private static final String GITHUB_LATEST_RELEASE_RETRIEVAL_URL =
-      "https://api.github.com/repos/provectus/kafka-ui/releases/latest";
+      "https://api.github.com/repos/MalonSkin/kafka-ui/releases/latest";
 
   private static final Duration GITHUB_API_MAX_WAIT_TIME = Duration.ofSeconds(2);
 
