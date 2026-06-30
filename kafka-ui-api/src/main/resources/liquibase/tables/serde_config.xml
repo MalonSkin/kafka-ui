@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <!--
+        Serde 配置表（1:N）
+        存储集群的序列化/反序列化器配置，包括类名、文件路径和属性
+        支持按主题 key/value 模式匹配
+        通过外键关联集群配置主表，支持级联删除
+    -->
+    <changeSet id="007" author="kafka-ui">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="serde_config"/></not>
+        </preConditions>
+        <createTable tableName="serde_config">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="cluster_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="class_name" type="VARCHAR(512)"/>
+            <column name="file_path" type="VARCHAR(512)"/>
+            <column name="properties_json" type="CLOB"/>
+            <column name="topic_keys_pattern" type="VARCHAR(512)"/>
+            <column name="topic_values_pattern" type="VARCHAR(512)"/>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="serde_config"
+                baseColumnNames="cluster_id"
+                constraintName="fk_serde_cluster"
+                referencedTableName="cluster_config"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+    </changeSet>
+
+</databaseChangeLog>

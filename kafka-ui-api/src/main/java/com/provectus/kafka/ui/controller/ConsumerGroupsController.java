@@ -32,17 +32,39 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+/**
+ * 消费者组管理控制器
+ *
+ * 提供 Kafka 消费者组的管理操作，包括：
+ * 1. 获取消费者组列表（分页、搜索、排序）
+ * 2. 获取消费者组详情（成员、偏移量、延迟等）
+ * 3. 删除消费者组
+ * 4. 重置消费者组偏移量（支持按最早/最新/时间戳/指定偏移量重置）
+ * 5. 获取指定 Topic 的消费者组列表
+ */
 @RestController
 @RequiredArgsConstructor
 @Slf4j
 public class ConsumerGroupsController extends AbstractController implements ConsumerGroupsApi {
 
+  /** 消费者组业务服务，处理消费者组的核心逻辑 */
   private final ConsumerGroupService consumerGroupService;
+
+  /** 偏移量重置服务，处理消费者组偏移量的重置操作 */
   private final OffsetsResetService offsetsResetService;
 
+  /** 消费者组列表默认分页大小，可通过 consumer.groups.page.size 配置 */
   @Value("${consumer.groups.page.size:25}")
   private int defaultConsumerGroupsPageSize;
 
+  /**
+   * 删除消费者组
+   *
+   * @param clusterName 集群名称
+   * @param id          消费者组 ID
+   * @param exchange    服务器交换对象
+   * @return 200 OK
+   */
   @Override
   public Mono<ResponseEntity<Void>> deleteConsumerGroup(String clusterName,
                                                         String id,
@@ -60,6 +82,16 @@ public class ConsumerGroupsController extends AbstractController implements Cons
         .thenReturn(ResponseEntity.ok().build());
   }
 
+  /**
+   * 获取消费者组详情
+   *
+   * 包含消费者组的状态、成员列表、各分区的消费偏移量和延迟等信息。
+   *
+   * @param clusterName      集群名称
+   * @param consumerGroupId  消费者组 ID
+   * @param exchange         服务器交换对象
+   * @return 消费者组详情 DTO
+   */
   @Override
   public Mono<ResponseEntity<ConsumerGroupDetailsDTO>> getConsumerGroup(String clusterName,
                                                                         String consumerGroupId,
@@ -78,6 +110,14 @@ public class ConsumerGroupsController extends AbstractController implements Cons
         .doOnEach(sig -> audit(context, sig));
   }
 
+  /**
+   * 获取消费指定 Topic 的消费者组列表
+   *
+   * @param clusterName 集群名称
+   * @param topicName   Topic 名称
+   * @param exchange    服务器交换对象
+   * @return 消费者组列表流，如果没有消费者则返回 404
+   */
   @Override
   public Mono<ResponseEntity<Flux<ConsumerGroupDTO>>> getTopicConsumerGroups(String clusterName,
                                                                              String topicName,
@@ -104,6 +144,18 @@ public class ConsumerGroupsController extends AbstractController implements Cons
         .doOnEach(sig -> audit(context, sig));
   }
 
+  /**
+   * 分页获取消费者组列表
+   *
+   * @param clusterName  集群名称
+   * @param page         页码（从 1 开始，默认 1）
+   * @param perPage      每页大小（默认 25，可通过配置修改）
+   * @param search       搜索关键词（按消费者组 ID 模糊匹配）
+   * @param orderBy      排序字段（名称等）
+   * @param sortOrderDto 排序方向（ASC/DESC）
+   * @param exchange     服务器交换对象
+   * @return 消费者组分页响应（包含消费者组列表和总页数）
+   */
   @Override
   public Mono<ResponseEntity<ConsumerGroupsPageResponseDTO>> getConsumerGroupsPage(
       String clusterName,
@@ -134,6 +186,21 @@ public class ConsumerGroupsController extends AbstractController implements Cons
     ).doOnEach(sig -> audit(context, sig));
   }
 
+  /**
+   * 重置消费者组偏移量
+   *
+   * 支持四种重置方式：
+   * - EARLIEST：重置到最早可用偏移量
+   * - LATEST：重置到最新偏移量
+   * - TIMESTAMP：重置到指定时间戳对应的偏移量
+   * - OFFSET：重置到指定的精确偏移量
+   *
+   * @param clusterName 集群名称
+   * @param group       消费者组 ID
+   * @param resetDto    重置参数（包含重置类型、Topic、分区等）
+   * @param exchange    服务器交换对象
+   * @return 200 OK
+   */
   @Override
   public Mono<ResponseEntity<Void>> resetConsumerGroupOffsets(String clusterName,
                                                               String group,
@@ -192,6 +259,12 @@ public class ConsumerGroupsController extends AbstractController implements Cons
     }).thenReturn(ResponseEntity.ok().build());
   }
 
+  /**
+   * 将内部消费者组分页结果转换为 DTO
+   *
+   * @param consumerGroupConsumerGroupsPage 内部分页结果
+   * @return 消费者组分页响应 DTO
+   */
   private ConsumerGroupsPageResponseDTO convertPage(ConsumerGroupService.ConsumerGroupsPage
                                                         consumerGroupConsumerGroupsPage) {
     return new ConsumerGroupsPageResponseDTO()

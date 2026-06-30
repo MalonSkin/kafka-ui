@@ -54,18 +54,15 @@ public class InternalClusterState {
 
     features = statistics.getFeatures();
 
-    bytesInPerSec = statistics
-        .getMetrics()
-        .getBrokerBytesInPerSec()
-        .values().stream()
-        .reduce(BigDecimal::add)
+    // 当 metrics 为空时（集群未配置 metrics），默认设置为 null，避免 NPE
+    bytesInPerSec = Optional.ofNullable(statistics.getMetrics())
+        .map(Metrics::getBrokerBytesInPerSec)
+        .map(m -> m.values().stream().reduce(BigDecimal::add).orElse(null))
         .orElse(null);
 
-    bytesOutPerSec = statistics
-        .getMetrics()
-        .getBrokerBytesOutPerSec()
-        .values().stream()
-        .reduce(BigDecimal::add)
+    bytesOutPerSec = Optional.ofNullable(statistics.getMetrics())
+        .map(Metrics::getBrokerBytesOutPerSec)
+        .map(m -> m.values().stream().reduce(BigDecimal::add).orElse(null))
         .orElse(null);
 
     var partitionsStats = new PartitionsStats(statistics.getTopicDescriptions().values());

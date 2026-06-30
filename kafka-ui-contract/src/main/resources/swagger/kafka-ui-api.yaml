@@ -2070,6 +2070,39 @@ paths:
               schema:
                 $ref: '#/components/schemas/UploadedFileInfo'
 
+  /api/config/clusters/hot-reload:
+    post:
+      tags:
+        - ApplicationConfig
+      summary: Add a new Kafka cluster without restarting the application
+      operationId: addClusterHotReload
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClusterConfig'
+      responses:
+        200:
+          description: Cluster added successfully
+        400:
+          description: Invalid cluster configuration or cluster already exists
+    delete:
+      tags:
+        - ApplicationConfig
+      summary: Remove a Kafka cluster without restarting the application
+      operationId: deleteClusterHotReload
+      parameters:
+        - name: clusterName
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Cluster removed successfully
+        404:
+          description: Cluster not found
+
 components:
   schemas:
     TopicSerdeSuggestion:
@@ -4110,3 +4143,78 @@ components:
                             type: object
                             additionalProperties:
                               type: string
+
+    ClusterConfig:
+      description: Kafka cluster configuration for hot-reload operations
+      type: object
+      required:
+        - name
+        - bootstrapServers
+      properties:
+        name:
+          type: string
+          description: Unique name of the Kafka cluster
+        bootstrapServers:
+          type: string
+          description: Comma-separated list of Kafka broker addresses (host:port)
+        schemaRegistry:
+          type: string
+          description: Schema Registry URL (optional)
+        schemaRegistryAuth:
+          type: object
+          properties:
+            username:
+              type: string
+            password:
+              type: string
+        ksqldbServer:
+          type: string
+          description: KSQL server URL (optional)
+        ksqldbServerAuth:
+          type: object
+          properties:
+            username:
+              type: string
+            password:
+              type: string
+        kafkaConnect:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              address:
+                type: string
+              username:
+                type: string
+              password:
+                type: string
+        properties:
+          type: object
+          additionalProperties: true
+          description: Additional Kafka client properties (e.g., security.protocol, sasl.mechanism)
+        readOnly:
+          type: boolean
+          default: false
+          description: If true, the cluster will be read-only in the UI
+        ssl:
+          type: object
+          properties:
+            truststoreLocation:
+              type: string
+            truststorePassword:
+              type: string
+        metrics:
+          type: object
+          properties:
+            type:
+              type: string
+            port:
+              type: integer
+            ssl:
+              type: boolean
+            username:
+              type: string
+            password:
+              type: string

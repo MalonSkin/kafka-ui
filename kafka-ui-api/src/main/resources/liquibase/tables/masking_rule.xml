@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <!--
+        数据脱敏规则表（1:N）
+        存储集群的数据脱敏配置，支持 REMOVE（移除）、MASK（掩码）、REPLACE（替换）三种类型
+        支持按字段名模式匹配和按主题 key/value 模式匹配
+        通过外键关联集群配置主表，支持级联删除
+    -->
+    <changeSet id="008" author="kafka-ui">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="masking_rule"/></not>
+        </preConditions>
+        <createTable tableName="masking_rule">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="cluster_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fields_json" type="CLOB"/>
+            <column name="fields_name_pattern" type="VARCHAR(512)"/>
+            <column name="masking_chars_json" type="CLOB"/>
+            <column name="replacement" type="VARCHAR(1024)"/>
+            <column name="topic_keys_pattern" type="VARCHAR(512)"/>
+            <column name="topic_values_pattern" type="VARCHAR(512)"/>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="masking_rule"
+                baseColumnNames="cluster_id"
+                constraintName="fk_masking_cluster"
+                referencedTableName="cluster_config"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+        <sql>
+            ALTER TABLE masking_rule ADD CONSTRAINT chk_masking_type
+            CHECK (type IN ('REMOVE', 'MASK', 'REPLACE'))
+        </sql>
+    </changeSet>
+
+    <!-- Masking 规则表添加 name 列及复合索引，用于按名称同步匹配 -->
+    <changeSet id="010" author="kafka-ui">
+        <addColumn tableName="masking_rule">
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+        <createIndex tableName="masking_rule" indexName="idx_masking_cluster_name">
+            <column name="cluster_id"/>
+            <column name="name"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

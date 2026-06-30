@@ -32,7 +32,11 @@ public class Metrics {
         .build();
   }
 
+  // 汇总所有 broker 的 metrics，当 perBrokerMetrics 为空时返回空流，避免 NPE
   public Stream<RawMetric> getSummarizedMetrics() {
+    if (perBrokerMetrics == null || perBrokerMetrics.isEmpty()) {
+      return Stream.of();
+    }
     return perBrokerMetrics.values().stream()
         .flatMap(Collection::stream)
         .collect(toMap(RawMetric::identityKey, m -> m, (m1, m2) -> m1.copyWithValue(m1.value().add(m2.value()))))

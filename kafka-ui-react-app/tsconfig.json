@@ -19,6 +19,10 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "baseUrl": "src",
+    "paths": {
+      "generated-sources": ["generated-sources"],
+      "generated-sources/*": ["generated-sources/*"]
+    },
     "noFallthroughCasesInSwitch": true,
     "types": ["vite/client"]
   },

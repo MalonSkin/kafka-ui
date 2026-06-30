@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Liquibase 主配置文件
+
+    注意：原先使用 <includeAll path="classpath:liquibase/tables/"/> 自动扫描目录，
+    但该方式在应用打包为 JAR 后无法工作（JAR 内不支持目录扫描）。
+    因此改为显式 <include> 每个变更集文件，并按正确的依赖顺序排列。
+-->
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <!-- 显式引入每个变更集文件（替代 includeAll，解决 JAR 包中无法扫描目录的问题） -->
+    <!-- 顺序说明：先建被引用的配置表，再建主集群表（有外键依赖），最后建索引 -->
+    <!-- 使用 classpath: 前缀确保从 JAR 包中正确加载，避免 relativeToChangelogFile 导致的路径重复问题 -->
+    <include file="classpath:liquibase/tables/cluster_auth_config.xml"/>
+    <include file="classpath:liquibase/tables/cluster_ssl_config.xml"/>
+    <include file="classpath:liquibase/tables/cluster_metrics_config.xml"/>
+    <include file="classpath:liquibase/tables/cluster_audit_config.xml"/>
+    <include file="classpath:liquibase/tables/cluster_config.xml"/>
+    <include file="classpath:liquibase/tables/connect_cluster_config.xml"/>
+    <include file="classpath:liquibase/tables/serde_config.xml"/>
+    <include file="classpath:liquibase/tables/masking_rule.xml"/>
+    <include file="classpath:liquibase/tables/indexes.xml"/>
+
+</databaseChangeLog>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <!--
+        指标采集配置表（1:1）
+        存储集群的指标采集配置，包括类型、端口、SSL、认证和密钥库信息
+    -->
+    <changeSet id="003" author="kafka-ui">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="cluster_metrics_config"/></not>
+        </preConditions>
+        <createTable tableName="cluster_metrics_config">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="type" type="VARCHAR(50)"/>
+            <column name="port" type="INTEGER"/>
+            <column name="ssl" type="BOOLEAN"/>
+            <column name="username" type="VARCHAR(255)"/>
+            <column name="password" type="VARCHAR(255)"/>
+            <column name="keystore_location" type="VARCHAR(512)"/>
+            <column name="keystore_password" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

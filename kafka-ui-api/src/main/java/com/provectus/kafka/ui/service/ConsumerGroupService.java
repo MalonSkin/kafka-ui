@@ -36,6 +36,20 @@ import org.apache.kafka.common.config.SslConfigs;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+/**
+ * Kafka 消费者组管理服务。
+ *
+ * <p>提供消费者组的查询、分页排序和删除功能，主要包括：
+ * <ul>
+ *   <li>获取所有消费者组列表及其消费偏移量和 Lag 信息</li>
+ *   <li>获取指定主题关联的消费者组信息</li>
+ *   <li>消费者组的分页查询，支持按名称、状态、成员数、消费延迟、主题数排序</li>
+ *   <li>消费者组详情的查询与删除</li>
+ *   <li>创建 Kafka 消费者实例（用于消息消费场景）</li>
+ * </ul>
+ *
+ * <p>通过 {@link AccessControlService} 实现基于 RBAC 的消费者组访问控制。
+ */
 @Service
 @RequiredArgsConstructor
 public class ConsumerGroupService {
@@ -65,6 +79,22 @@ public class ConsumerGroupService {
                 });
     }
 
+    /**
+     * 获取指定主题关联的所有消费者组信息。
+     *
+     * <p>通过以下步骤获取数据：
+     * <ol>
+     *   <li>获取主题各分区的最新偏移量</li>
+     *   <li>获取所有消费者组描述信息</li>
+     *   <li>查询各消费者组的已提交偏移量</li>
+     *   <li>筛选出与该主题相关的消费者组（有活跃成员或已提交偏移量）</li>
+     *   <li>构建消费者组的消费进度信息</li>
+     * </ol>
+     *
+     * @param cluster 目标 Kafka 集群
+     * @param topic   主题名称
+     * @return 包含 {@link InternalTopicConsumerGroup} 列表的 Mono
+     */
     public Mono<List<InternalTopicConsumerGroup>> getConsumerGroupsForTopic(KafkaCluster cluster,
                                                                             String topic) {
         return adminClientService.get(cluster)
@@ -106,6 +136,28 @@ public class ConsumerGroupService {
     private record GroupWithDescr(InternalConsumerGroup icg, ConsumerGroupDescription cgd) {
     }
 
+    /**
+     * 分页查询消费者组列表。
+     *
+     * <p>支持按名称搜索过滤，以及按以下字段排序：
+     * <ul>
+     *   <li>NAME — 消费者组名称</li>
+     *   <li>STATE — 消费者组状态（STABLE > COMPLETING_REBALANCE > PREPARING_REBALANCE > EMPTY > DEAD > UNKNOWN）</li>
+     *   <li>MEMBERS — 成员数量</li>
+     *   <li>MESSAGES_BEHIND — 消费延迟（Lag）</li>
+     *   <li>TOPIC_NUM — 关联主题数量</li>
+     * </ul>
+     *
+     * <p>查询结果经过 RBAC 访问控制过滤。
+     *
+     * @param cluster     目标 Kafka 集群
+     * @param pageNum     页码（从 1 开始）
+     * @param perPage     每页数量
+     * @param search      搜索关键字（可为 null）
+     * @param orderBy     排序字段
+     * @param sortOrderDto 排序方向（ASC/DESC）
+     * @return 包含分页结果的 {@link ConsumerGroupsPage} 的 Mono
+     */
     public Mono<ConsumerGroupsPage> getConsumerGroupsPage(
             KafkaCluster cluster,
             int pageNum,
@@ -232,6 +284,15 @@ public class ConsumerGroupService {
 
     }
 
+    /**
+     * 获取指定消费者组的详细信息。
+     *
+     * <p>包括消费者组描述、已提交偏移量和消费延迟（Lag）信息。
+     *
+     * @param cluster         目标 Kafka 集群
+     * @param consumerGroupId 消费者组 ID
+     * @return 包含 {@link InternalConsumerGroup} 的 Mono
+     */
     public Mono<InternalConsumerGroup> getConsumerGroupDetail(KafkaCluster cluster,
                                                               String consumerGroupId) {
         return adminClientService.get(cluster)
@@ -244,16 +305,45 @@ public class ConsumerGroupService {
                                         .map(groups -> groups.get(0))));
     }
 
+    /**
+     * 删除指定的消费者组。
+     *
+     * @param cluster 目标 Kafka 集群
+     * @param groupId 消费者组 ID
+     * @return 删除完成的 Mono
+     */
     public Mono<Void> deleteConsumerGroupById(KafkaCluster cluster,
                                               String groupId) {
         return adminClientService.get(cluster)
                 .flatMap(adminClient -> adminClient.deleteConsumerGroups(List.of(groupId)));
     }
 
+    /**
+     * 创建默认配置的 Kafka 消费者实例。
+     *
+     * @param cluster 目标 Kafka 集群
+     * @return 配置完成的 {@link EnhancedConsumer} 实例
+     */
     public EnhancedConsumer createConsumer(KafkaCluster cluster) {
         return createConsumer(cluster, Map.of());
     }
 
+    /**
+     * 创建自定义配置的 Kafka 消费者实例。
+     *
+     * <p>默认配置包括：
+     * <ul>
+     *   <li>自动提交关闭（enable.auto.commit=false）</li>
+     *   <li>偏移量重置策略为 earliest</li>
+     *   <li>禁止自动创建主题</li>
+     *   <li>禁用 SSL 主机名验证</li>
+     *   <li>客户端 ID 格式为 kafka-ui-consumer-{timestamp}</li>
+     * </ul>
+     *
+     * @param cluster    目标 Kafka 集群
+     * @param properties 额外的消费者配置属性（会覆盖默认配置）
+     * @return 配置完成的 {@link EnhancedConsumer} 实例
+     */
     public EnhancedConsumer createConsumer(KafkaCluster cluster,
                                            Map<String, Object> properties) {
         Properties props = new Properties();

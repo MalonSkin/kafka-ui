@@ -49,6 +49,22 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
+/**
+ * Kafka 主题管理服务。
+ *
+ * <p>提供主题的完整生命周期管理功能，包括：
+ * <ul>
+ *   <li>主题的查询、创建、删除、克隆和重建</li>
+ *   <li>主题配置的查看与更新</li>
+ *   <li>分区数量的扩容</li>
+ *   <li>副本因子的变更（基于 Kafka 5.4+ 的分区重分配）</li>
+ *   <li>主题分页列表的获取</li>
+ *   <li>生产者状态的查询</li>
+ * </ul>
+ *
+ * <p>所有操作均基于 {@link ReactiveAdminClient} 进行异步调用，
+ * 并通过 {@link StatisticsCache} 缓存集群统计信息以提升查询性能。
+ */
 @Service
 @RequiredArgsConstructor
 public class TopicsService {
@@ -65,6 +81,16 @@ public class TopicsService {
   @Value("${topic.load.after.create.delay.ms:500}")
   private int loadTopicAfterCreateDelayInMs;
 
+  /**
+   * 批量加载主题的详细信息。
+   *
+   * <p>通过 AdminClient 查询主题的描述信息和配置，并结合统计缓存中的指标和日志目录信息
+   * 构建完整的主题对象列表。同时更新统计缓存。
+   *
+   * @param c      目标 Kafka 集群
+   * @param topics 需要加载的主题名称列表
+   * @return 包含 {@link InternalTopic} 列表的 Mono，若列表为空则返回空列表
+   */
   public Mono<List<InternalTopic>> loadTopics(KafkaCluster c, List<String> topics) {
     if (topics.isEmpty()) {
       return Mono.just(List.of());
@@ -88,6 +114,13 @@ public class TopicsService {
                 })).flatMap(Function.identity());
   }
 
+  /**
+   * 加载单个主题的详细信息。
+   *
+   * @param c         目标 Kafka 集群
+   * @param topicName 主题名称
+   * @return 包含 {@link InternalTopic} 的 Mono，若主题不存在则触发 {@link TopicNotFoundException}
+   */
   private Mono<InternalTopic> loadTopic(KafkaCluster c, String topicName) {
     return loadTopics(c, List.of(topicName))
         .flatMap(lst -> lst.stream().findFirst()
@@ -118,6 +151,17 @@ public class TopicsService {
         );
   }
 
+  /**
+   * 根据描述、配置、偏移量和指标信息构建主题对象列表。
+   *
+   * @param orderedNames      有序的主题名称列表（决定返回结果的顺序）
+   * @param descriptions      主题描述信息映射
+   * @param configs           主题配置信息映射
+   * @param partitionsOffsets 分区偏移量信息
+   * @param metrics           集群指标数据
+   * @param logDirInfo        日志目录统计信息
+   * @return 构建完成的 {@link InternalTopic} 列表
+   */
   private List<InternalTopic> createList(List<String> orderedNames,
                                          Map<String, TopicDescription> descriptions,
                                          Map<String, List<ConfigEntry>> configs,
@@ -137,6 +181,13 @@ public class TopicsService {
         .collect(toList());
   }
 
+  /**
+   * 获取主题分区的最早和最新偏移量。
+   *
+   * @param descriptionsMap 主题描述信息映射，用于确定需要查询的分区
+   * @param ac              响应式 AdminClient 实例
+   * @return 包含各分区最早和最新偏移量的 {@link InternalPartitionsOffsets}
+   */
   private Mono<InternalPartitionsOffsets> getPartitionOffsets(Map<String, TopicDescription>
                                                                   descriptionsMap,
                                                               ReactiveAdminClient ac) {
@@ -154,10 +205,30 @@ public class TopicsService {
         .map(InternalPartitionsOffsets::new);
   }
 
+  /**
+   * 获取指定主题的详细信息。
+   *
+   * @param cluster   目标 Kafka 集群
+   * @param topicName 主题名称
+   * @return 包含 {@link InternalTopic} 的 Mono
+   */
   public Mono<InternalTopic> getTopicDetails(KafkaCluster cluster, String topicName) {
     return loadTopic(cluster, topicName);
   }
 
+  /**
+   * 获取指定主题的配置项列表。
+   *
+   * <p>处理两种场景：
+   * <ol>
+   *   <li>主题不存在或不可见 — 抛出 {@link TopicNotFoundException}</li>
+   *   <li>主题存在但无 DESCRIBE_CONFIG 权限 — 返回空列表</li>
+   * </ol>
+   *
+   * @param cluster   目标 Kafka 集群
+   * @param topicName 主题名称
+   * @return 包含配置项列表的 Mono
+   */
   public Mono<List<ConfigEntry>> getTopicConfigs(KafkaCluster cluster, String topicName) {
     // there 2 case that we cover here:
     // 1. topic not found/visible - describeTopic() will be empty and we will throw TopicNotFoundException
@@ -169,6 +240,17 @@ public class TopicsService {
             .map(m -> m.values().stream().findFirst().orElse(List.of())));
   }
 
+  /**
+   * 创建主题的内部实现。
+   *
+   * <p>通过 AdminClient 创建主题，创建完成后通过重试机制加载主题信息，
+   * 以应对主题在创建后短暂不可见的情况。
+   *
+   * @param c           目标 Kafka 集群
+   * @param adminClient AdminClient 实例
+   * @param topicData   主题创建参数
+   * @return 包含新创建的 {@link InternalTopic} 的 Mono
+   */
   private Mono<InternalTopic> createTopic(KafkaCluster c, ReactiveAdminClient adminClient, TopicCreationDTO topicData) {
     return adminClient.createTopic(
             topicData.getName(),
@@ -180,11 +262,28 @@ public class TopicsService {
         .then(loadTopicAfterCreation(c, topicData.getName()));
   }
 
+  /**
+   * 创建新的 Kafka 主题。
+   *
+   * @param cluster       目标 Kafka 集群
+   * @param topicCreation 主题创建参数（名称、分区数、副本因子、配置项）
+   * @return 包含新创建的 {@link InternalTopic} 的 Mono
+   */
   public Mono<InternalTopic> createTopic(KafkaCluster cluster, TopicCreationDTO topicCreation) {
     return adminClientService.get(cluster)
         .flatMap(ac -> createTopic(cluster, ac, topicCreation));
   }
 
+  /**
+   * 重建指定主题（先删除后重新创建）。
+   *
+   * <p>保留原主题的分区数、副本因子和配置信息。删除后会等待指定延迟再执行创建，
+   * 并通过重试机制处理 {@link TopicExistsException}（主题删除后可能短暂存在）。
+   *
+   * @param cluster   目标 Kafka 集群
+   * @param topicName 需要重建的主题名称
+   * @return 包含重建后的 {@link InternalTopic} 的 Mono
+   */
   public Mono<InternalTopic> recreateTopic(KafkaCluster cluster, String topicName) {
     return loadTopic(cluster, topicName)
         .flatMap(t -> deleteTopic(cluster, topicName)
@@ -225,6 +324,14 @@ public class TopicsService {
                 .then(loadTopic(cluster, topicName)));
   }
 
+  /**
+   * 更新主题配置。
+   *
+   * @param cl          目标 Kafka 集群
+   * @param topicName   主题名称
+   * @param topicUpdate 包含新配置的 {@link TopicUpdateDTO} 的 Mono
+   * @return 包含更新后的 {@link InternalTopic} 的 Mono
+   */
   public Mono<InternalTopic> updateTopic(KafkaCluster cl, String topicName,
                                     Mono<TopicUpdateDTO> topicUpdate) {
     return topicUpdate
@@ -243,6 +350,21 @@ public class TopicsService {
 
   /**
    * Change topic replication factor, works on brokers versions 5.4.x and higher
+   */
+  /**
+   * 变更主题的副本因子（适用于 Kafka 5.4.x 及更高版本）。
+   *
+   * <p>通过分区重分配机制实现副本因子的增减：
+   * <ul>
+   *   <li>增加副本因子时，按 Broker 使用率从低到高选择新副本</li>
+   *   <li>减少副本因子时，按 Broker 使用率从高到低移除非 Leader 副本</li>
+   * </ul>
+   *
+   * @param cluster                 目标 Kafka 集群
+   * @param topicName               主题名称
+   * @param replicationFactorChange 副本因子变更参数（包含目标副本因子总数）
+   * @return 包含变更结果的 {@link ReplicationFactorChangeResponseDTO} 的 Mono
+   * @throws ValidationException 若请求的副本因子与当前值相同、小于等于 0 或超过 Broker 数量
    */
   public Mono<ReplicationFactorChangeResponseDTO> changeReplicationFactor(
       KafkaCluster cluster,
@@ -381,6 +503,17 @@ public class TopicsService {
     return result;
   }
 
+  /**
+   * 增加主题的分区数量。
+   *
+   * <p>验证请求的分区数必须大于当前分区数，然后通过 AdminClient 执行分区扩容操作。
+   *
+   * @param cluster           目标 Kafka 集群
+   * @param topicName         主题名称
+   * @param partitionsIncrease 分区扩容参数（包含目标分区总数）
+   * @return 包含扩容结果的 {@link PartitionsIncreaseResponseDTO} 的 Mono
+   * @throws ValidationException 若请求的分区数小于或等于当前分区数
+   */
   public Mono<PartitionsIncreaseResponseDTO> increaseTopicPartitions(
       KafkaCluster cluster,
       String topicName,
@@ -415,6 +548,17 @@ public class TopicsService {
     );
   }
 
+  /**
+   * 删除指定的 Kafka 主题。
+   *
+   * <p>删除前会检查集群是否启用了主题删除功能（{@link ClusterFeature#TOPIC_DELETION}），
+   * 若未启用则抛出 {@link ValidationException}。删除成功后会更新统计缓存。
+   *
+   * @param cluster   目标 Kafka 集群
+   * @param topicName 需要删除的主题名称
+   * @return 删除完成的 Mono
+   * @throws ValidationException 若集群不允许主题删除
+   */
   public Mono<Void> deleteTopic(KafkaCluster cluster, String topicName) {
     if (statisticsCache.get(cluster).getFeatures().contains(ClusterFeature.TOPIC_DELETION)) {
       return adminClientService.get(cluster).flatMap(c -> c.deleteTopic(topicName))
@@ -424,6 +568,16 @@ public class TopicsService {
     }
   }
 
+  /**
+   * 克隆指定主题，使用新名称创建一个配置相同的新主题。
+   *
+   * <p>复制原主题的分区数、副本因子和所有配置项到新主题。
+   *
+   * @param cluster      目标 Kafka 集群
+   * @param topicName    源主题名称
+   * @param newTopicName 新主题名称
+   * @return 包含新创建的 {@link InternalTopic} 的 Mono
+   */
   public Mono<InternalTopic> cloneTopic(
       KafkaCluster cluster, String topicName, String newTopicName) {
     return loadTopic(cluster, topicName).flatMap(topic ->
@@ -443,6 +597,15 @@ public class TopicsService {
     );
   }
 
+  /**
+   * 获取用于分页展示的主题列表。
+   *
+   * <p>基于统计缓存中的主题信息构建列表，使用空的分区偏移量（分页场景不需要偏移量详情），
+   * 并过滤掉已不存在的主题。
+   *
+   * @param cluster 目标 Kafka 集群
+   * @return 包含 {@link InternalTopic} 列表的 Mono
+   */
   public Mono<List<InternalTopic>> getTopicsForPagination(KafkaCluster cluster) {
     Statistics stats = statisticsCache.get(cluster);
     return filterExisting(cluster, stats.getTopicDescriptions().keySet())
@@ -460,6 +623,13 @@ public class TopicsService {
         );
   }
 
+  /**
+   * 获取指定主题的活跃生产者状态信息。
+   *
+   * @param cluster 目标 Kafka 集群
+   * @param topic   主题名称
+   * @return 包含分区到生产者状态映射的 Mono
+   */
   public Mono<Map<TopicPartition, List<ProducerState>>> getActiveProducersState(KafkaCluster cluster, String topic) {
     return adminClientService.get(cluster)
         .flatMap(ac -> ac.getActiveProducersState(topic));

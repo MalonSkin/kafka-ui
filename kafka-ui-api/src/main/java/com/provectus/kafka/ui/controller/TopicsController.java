@@ -42,17 +42,45 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+/**
+ * Topic 管理控制器
+ *
+ * 提供 Kafka Topic 的完整 CRUD 操作，包括：
+ * 1. Topic 的创建、删除、更新、克隆、重建
+ * 2. Topic 配置查看
+ * 3. Topic 详情查看（含分区、副本等信息）
+ * 4. Topic 分页列表查询（支持搜索、排序、过滤内部 Topic）
+ * 5. 分区数量增加、副本因子变更
+ * 6. Topic 分析功能（异步分析消息内容）
+ * 7. Topic 生产者状态查看
+ *
+ * <p>所有操作需要相应的 RBAC 权限，通过 {@code AccessContext} 进行权限校验。</p>
+ */
 @RestController
 @RequiredArgsConstructor
 @Slf4j
 public class TopicsController extends AbstractController implements TopicsApi {
 
+  /** 默认分页大小 */
   private static final Integer DEFAULT_PAGE_SIZE = 25;
 
+  /** Topic 业务服务，处理 Topic 的核心业务逻辑 */
   private final TopicsService topicsService;
+
+  /** Topic 分析服务，提供消息内容的异步分析功能 */
   private final TopicAnalysisService topicAnalysisService;
+
+  /** 集群模型映射器，将内部模型转换为 DTO */
   private final ClusterMapper clusterMapper;
 
+  /**
+   * 创建新 Topic
+   *
+   * @param clusterName      集群名称
+   * @param topicCreationMono Topic 创建参数（包含名称、分区数、副本因子、配置等）
+   * @param exchange          服务器交换对象
+   * @return 创建后的 Topic DTO
+   */
   @Override
   public Mono<ResponseEntity<TopicDTO>> createTopic(
       String clusterName, @Valid Mono<TopicCreationDTO> topicCreationMono, ServerWebExchange exchange) {
@@ -73,6 +101,14 @@ public class TopicsController extends AbstractController implements TopicsApi {
     });
   }
 
+  /**
+   * 重建 Topic（删除后重新创建）
+   *
+   * @param clusterName 集群名称
+   * @param topicName   要重建的 Topic 名称
+   * @param exchange    服务器交换对象
+   * @return 重建后的 Topic DTO
+   */
   @Override
   public Mono<ResponseEntity<TopicDTO>> recreateTopic(String clusterName,
                                                       String topicName, ServerWebExchange exchange) {
@@ -90,6 +126,15 @@ public class TopicsController extends AbstractController implements TopicsApi {
     ).doOnEach(sig -> audit(context, sig));
   }
 
+  /**
+   * 克隆 Topic（复制配置创建新 Topic）
+   *
+   * @param clusterName 集群名称
+   * @param topicName   源 Topic 名称
+   * @param newTopicName 新 Topic 名称
+   * @param exchange    服务器交换对象
+   * @return 新创建的 Topic DTO
+   */
   @Override
   public Mono<ResponseEntity<TopicDTO>> cloneTopic(
       String clusterName, String topicName, String newTopicName, ServerWebExchange exchange) {
@@ -109,6 +154,14 @@ public class TopicsController extends AbstractController implements TopicsApi {
         ).doOnEach(sig -> audit(context, sig));
   }
 
+  /**
+   * 删除 Topic
+   *
+   * @param clusterName 集群名称
+   * @param topicName   要删除的 Topic 名称
+   * @param exchange    服务器交换对象
+   * @return 200 OK
+   */
   @Override
   public Mono<ResponseEntity<Void>> deleteTopic(
       String clusterName, String topicName, ServerWebExchange exchange) {
@@ -128,6 +181,14 @@ public class TopicsController extends AbstractController implements TopicsApi {
   }
 
 
+  /**
+   * 获取 Topic 配置列表
+   *
+   * @param clusterName 集群名称
+   * @param topicName   Topic 名称
+   * @param exchange    服务器交换对象
+   * @return Topic 配置列表流
+   */
   @Override
   public Mono<ResponseEntity<Flux<TopicConfigDTO>>> getTopicConfigs(
       String clusterName, String topicName, ServerWebExchange exchange) {
@@ -150,6 +211,14 @@ public class TopicsController extends AbstractController implements TopicsApi {
     ).doOnEach(sig -> audit(context, sig));
   }
 
+  /**
+   * 获取 Topic 详情（含分区、副本、配置等完整信息）
+   *
+   * @param clusterName 集群名称
+   * @param topicName   Topic 名称
+   * @param exchange    服务器交换对象
+   * @return Topic 详情 DTO
+   */
   @Override
   public Mono<ResponseEntity<TopicDetailsDTO>> getTopicDetails(
       String clusterName, String topicName, ServerWebExchange exchange) {
@@ -168,6 +237,19 @@ public class TopicsController extends AbstractController implements TopicsApi {
     ).doOnEach(sig -> audit(context, sig));
   }
 
+  /**
+   * 分页获取 Topic 列表
+   *
+   * @param clusterName 集群名称
+   * @param page        页码（从 1 开始，默认 1）
+   * @param perPage     每页大小（默认 25）
+   * @param showInternal 是否显示内部 Topic
+   * @param search      搜索关键词（按名称模糊匹配）
+   * @param orderBy     排序字段（名称、分区数、副本因子等）
+   * @param sortOrder   排序方向（ASC/DESC）
+   * @param exchange    服务器交换对象
+   * @return Topic 分页响应（包含 Topic 列表和总页数）
+   */
   @Override
   public Mono<ResponseEntity<TopicsResponseDTO>> getTopics(String clusterName,
                                                            @Valid Integer page,
@@ -215,6 +297,15 @@ public class TopicsController extends AbstractController implements TopicsApi {
         .doOnEach(sig -> audit(context, sig));
   }
 
+  /**
+   * 更新 Topic 配置
+   *
+   * @param clusterName 集群名称
+   * @param topicName   Topic 名称
+   * @param topicUpdate 更新参数（包含配置项键值对）
+   * @param exchange    服务器交换对象
+   * @return 更新后的 Topic DTO
+   */
   @Override
   public Mono<ResponseEntity<TopicDTO>> updateTopic(
       String clusterName, String topicName, @Valid Mono<TopicUpdateDTO> topicUpdate,
@@ -235,6 +326,15 @@ public class TopicsController extends AbstractController implements TopicsApi {
     ).doOnEach(sig -> audit(context, sig));
   }
 
+  /**
+   * 增加 Topic 分区数量
+   *
+   * @param clusterName       集群名称
+   * @param topicName         Topic 名称
+   * @param partitionsIncrease 分区增加参数（包含目标分区数）
+   * @param exchange          服务器交换对象
+   * @return 分区增加结果
+   */
   @Override
   public Mono<ResponseEntity<PartitionsIncreaseResponseDTO>> increaseTopicPartitions(
       String clusterName, String topicName,
@@ -254,6 +354,15 @@ public class TopicsController extends AbstractController implements TopicsApi {
     ).doOnEach(sig -> audit(context, sig));
   }
 
+  /**
+   * 变更 Topic 副本因子
+   *
+   * @param clusterName          集群名称
+   * @param topicName            Topic 名称
+   * @param replicationFactorChange 副本因子变更参数（包含新的副本因子和副本分配方案）
+   * @param exchange             服务器交换对象
+   * @return 副本因子变更结果
+   */
   @Override
   public Mono<ResponseEntity<ReplicationFactorChangeResponseDTO>> changeReplicationFactor(
       String clusterName, String topicName,
@@ -275,6 +384,16 @@ public class TopicsController extends AbstractController implements TopicsApi {
     ).doOnEach(sig -> audit(context, sig));
   }
 
+  /**
+   * 启动 Topic 异步分析任务
+   *
+   * 分析任务会在后台运行，通过 getTopicAnalysis 获取结果。
+   *
+   * @param clusterName 集群名称
+   * @param topicName   Topic 名称
+   * @param exchange    服务器交换对象
+   * @return 200 OK
+   */
   @Override
   public Mono<ResponseEntity<Void>> analyzeTopic(String clusterName, String topicName, ServerWebExchange exchange) {
 
@@ -292,6 +411,14 @@ public class TopicsController extends AbstractController implements TopicsApi {
     );
   }
 
+  /**
+   * 取消正在运行的 Topic 分析任务
+   *
+   * @param clusterName 集群名称
+   * @param topicName   Topic 名称
+   * @param exchange    服务器交换对象
+   * @return 200 OK
+   */
   @Override
   public Mono<ResponseEntity<Void>> cancelTopicAnalysis(String clusterName, String topicName,
                                                         ServerWebExchange exchange) {
@@ -309,6 +436,14 @@ public class TopicsController extends AbstractController implements TopicsApi {
   }
 
 
+  /**
+   * 获取 Topic 分析结果
+   *
+   * @param clusterName 集群名称
+   * @param topicName   Topic 名称
+   * @param exchange    服务器交换对象
+   * @return Topic 分析结果 DTO，如果分析未启动则返回 404
+   */
   @Override
   public Mono<ResponseEntity<TopicAnalysisDTO>> getTopicAnalysis(String clusterName,
                                                                  String topicName,
@@ -328,6 +463,16 @@ public class TopicsController extends AbstractController implements TopicsApi {
         .doOnEach(sig -> audit(context, sig));
   }
 
+  /**
+   * 获取 Topic 活跃生产者状态
+   *
+   * 返回当前正在向该 Topic 发送消息的生产者信息，按分区和生产者 ID 排序。
+   *
+   * @param clusterName 集群名称
+   * @param topicName   Topic 名称
+   * @param exchange    服务器交换对象
+   * @return 活跃生产者状态列表流
+   */
   @Override
   public Mono<ResponseEntity<Flux<TopicProducerStateDTO>>> getActiveProducerStates(String clusterName,
                                                                                    String topicName,
@@ -356,6 +501,12 @@ public class TopicsController extends AbstractController implements TopicsApi {
         .doOnEach(sig -> audit(context, sig));
   }
 
+  /**
+   * 根据排序字段创建 Topic 比较器
+   *
+   * @param orderBy 排序字段枚举
+   * @return Topic 比较器，orderBy 为 null 时按名称排序
+   */
   private Comparator<InternalTopic> getComparatorForTopic(
       TopicColumnsToSortDTO orderBy) {
     var defaultComparator = Comparator.comparing(InternalTopic::getName);

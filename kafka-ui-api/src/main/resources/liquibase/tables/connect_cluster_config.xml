@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <!--
+        Kafka Connect 集群配置表（1:N）
+        存储 Kafka Connect 集群的连接信息，包括地址、认证和 SSL 配置
+        通过外键关联集群配置主表，支持级联删除
+    -->
+    <changeSet id="006" author="kafka-ui">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="connect_cluster_config"/></not>
+        </preConditions>
+        <createTable tableName="connect_cluster_config">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="cluster_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="address" type="VARCHAR(512)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="username" type="VARCHAR(255)"/>
+            <column name="password" type="VARCHAR(255)"/>
+            <column name="keystore_location" type="VARCHAR(512)"/>
+            <column name="keystore_password" type="VARCHAR(255)"/>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="connect_cluster_config"
+                baseColumnNames="cluster_id"
+                constraintName="fk_connect_cluster"
+                referencedTableName="cluster_config"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+    </changeSet>
+
+</databaseChangeLog>

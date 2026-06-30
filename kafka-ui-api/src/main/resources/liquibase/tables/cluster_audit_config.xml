@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <!--
+        审计配置表（1:1）
+        存储集群的审计配置，包括审计主题、分区数、启用状态和级别
+        审计级别约束：ALL（全部）或 ALTER_ONLY（仅变更操作）
+    -->
+    <changeSet id="004" author="kafka-ui">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="cluster_audit_config"/></not>
+        </preConditions>
+        <createTable tableName="cluster_audit_config">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="topic" type="VARCHAR(255)"/>
+            <column name="audit_topics_partitions" type="INTEGER"/>
+            <column name="topic_audit_enabled" type="BOOLEAN"/>
+            <column name="console_audit_enabled" type="BOOLEAN"/>
+            <column name="level" type="VARCHAR(20)"/>
+            <column name="audit_topic_properties" type="CLOB"/>
+        </createTable>
+        <sql>
+            ALTER TABLE cluster_audit_config ADD CONSTRAINT chk_audit_level
+            CHECK (level IN ('ALL', 'ALTER_ONLY'))
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

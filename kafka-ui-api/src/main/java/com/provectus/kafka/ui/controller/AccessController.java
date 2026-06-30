@@ -23,13 +23,32 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+/**
+ * 访问控制与授权信息控制器
+ *
+ * 提供当前用户的认证和授权信息查询，包括：
+ * 1. 获取用户的认证信息（用户名、RBAC 权限列表）
+ * 2. 判断 RBAC 是否启用
+ *
+ * <p>权限信息基于用户所属的角色和角色定义的权限进行计算。</p>
+ */
 @RestController
 @RequiredArgsConstructor
 @Slf4j
 public class AccessController implements AuthorizationApi {
 
+  /** 访问控制服务，处理 RBAC 权限逻辑 */
   private final AccessControlService accessControlService;
 
+  /**
+   * 获取当前用户的认证和授权信息
+   *
+   * 返回用户名、RBAC 启用状态以及用户拥有的权限列表。
+   * 权限列表通过用户所属角色的权限进行聚合计算。
+   *
+   * @param exchange 服务器交换对象
+   * @return 认证信息 DTO（包含用户信息和权限列表）
+   */
   public Mono<ResponseEntity<AuthenticationInfoDTO>> getUserAuthInfo(ServerWebExchange exchange) {
     Mono<List<UserPermissionDTO>> permissions = accessControlService.getUser()
         .map(user -> accessControlService.getRoles()
@@ -56,6 +75,13 @@ public class AccessController implements AuthorizationApi {
         .map(ResponseEntity::ok);
   }
 
+  /**
+   * 将内部权限模型映射为用户权限 DTO 列表
+   *
+   * @param permissions 内部权限列表
+   * @param clusters    权限适用的集群列表
+   * @return 用户权限 DTO 列表
+   */
   private List<UserPermissionDTO> mapPermissions(List<Permission> permissions, List<String> clusters) {
     return permissions
         .stream()
@@ -75,6 +101,12 @@ public class AccessController implements AuthorizationApi {
         .toList();
   }
 
+  /**
+   * 将动作名称映射为 ActionDTO 枚举值
+   *
+   * @param name 动作名称（大写形式）
+   * @return ActionDTO 枚举值，未知动作返回 null
+   */
   @Nullable
   private ActionDTO mapAction(String name) {
     try {

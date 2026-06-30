@@ -10,11 +10,25 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+/**
+ * 认证控制器
+ *
+ * 提供表单登录页面的渲染和 CSRF Token 处理，用于不使用 OAuth2/OIDC 的基本认证场景。
+ * 渲染一个简单的 HTML 登录页面，包含用户名/密码输入框和 CSRF 令牌。
+ */
 @RestController
 @RequiredArgsConstructor
 @Slf4j
 public class AuthController {
 
+  /**
+   * 获取认证登录页面
+   *
+   * 渲染包含 CSRF Token 的 HTML 登录表单页面。支持错误提示和登出成功提示。
+   *
+   * @param exchange 服务器交换对象
+   * @return HTML 页面字节数组
+   */
   @GetMapping(value = "/auth", produces = {"text/html"})
   public Mono<byte[]> getAuth(ServerWebExchange exchange) {
     Mono<CsrfToken> token = exchange.getAttributeOrDefault(CsrfToken.class.getName(), Mono.empty());
@@ -24,6 +38,13 @@ public class AuthController {
         .map(csrfTokenHtmlInput -> createPage(exchange, csrfTokenHtmlInput));
   }
 
+  /**
+   * 构建完整的 HTML 登录页面
+   *
+   * @param exchange           服务器交换对象（用于获取上下文路径）
+   * @param csrfTokenHtmlInput CSRF Token 的 HTML 隐藏输入字段
+   * @return HTML 页面字节数组
+   */
   private byte[] createPage(ServerWebExchange exchange, String csrfTokenHtmlInput) {
     MultiValueMap<String, String> queryParams = exchange.getRequest()
         .getQueryParams();
@@ -52,6 +73,14 @@ public class AuthController {
     return page.getBytes(Charset.defaultCharset());
   }
 
+  /**
+   * 构建登录表单 HTML
+   *
+   * @param queryParams        查询参数（用于判断是否显示错误/登出提示）
+   * @param contextPath        应用上下文路径
+   * @param csrfTokenHtmlInput CSRF Token 的 HTML 隐藏输入字段
+   * @return 登录表单 HTML 字符串
+   */
   private String formLogin(
       MultiValueMap<String, String> queryParams,
       String contextPath, String csrfTokenHtmlInput) {
@@ -77,6 +106,12 @@ public class AuthController {
         + "      </form>\n";
   }
 
+  /**
+   * 将 CsrfToken 转换为 HTML 隐藏输入字段
+   *
+   * @param token CSRF Token 对象
+   * @return HTML 隐藏输入字段字符串
+   */
   private static String csrfToken(CsrfToken token) {
     return "          <input type=\"hidden\" name=\""
         + token.getParameterName()
@@ -85,12 +120,24 @@ public class AuthController {
         + "\">\n";
   }
 
+  /**
+   * 创建认证错误提示 HTML
+   *
+   * @param isError 是否显示错误提示
+   * @return 错误提示 HTML 字符串，无错误时返回空字符串
+   */
   private static String createError(boolean isError) {
     return isError
         ? "<div class=\"alert alert-danger\" role=\"alert\">Invalid credentials</div>"
         : "";
   }
 
+  /**
+   * 创建登出成功提示 HTML
+   *
+   * @param isLogoutSuccess 是否显示登出成功提示
+   * @return 登出成功提示 HTML 字符串，无提示时返回空字符串
+   */
   private static String createLogoutSuccess(boolean isLogoutSuccess) {
     return isLogoutSuccess
         ? "<div class=\"alert alert-success\" role=\"alert\">You have been signed out</div>"

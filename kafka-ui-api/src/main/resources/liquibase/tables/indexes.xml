@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <!--
+        索引定义
+        为各表创建常用查询索引，提升查询性能
+    -->
+    <changeSet id="009" author="kafka-ui">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <not><indexExists indexName="idx_cluster_name" tableName="cluster_config"/></not>
+                <not><indexExists indexName="idx_connect_cluster_id" tableName="connect_cluster_config"/></not>
+                <not><indexExists indexName="idx_serde_cluster_id" tableName="serde_config"/></not>
+                <not><indexExists indexName="idx_masking_cluster_id" tableName="masking_rule"/></not>
+            </and>
+        </preConditions>
+        <!-- 集群配置表：按名称查询索引 -->
+        <createIndex tableName="cluster_config" indexName="idx_cluster_name">
+            <column name="name"/>
+        </createIndex>
+        <!-- Connect 集群配置表：按集群 ID 查询索引 -->
+        <createIndex tableName="connect_cluster_config" indexName="idx_connect_cluster_id">
+            <column name="cluster_id"/>
+        </createIndex>
+        <!-- Serde 配置表：按集群 ID 查询索引 -->
+        <createIndex tableName="serde_config" indexName="idx_serde_cluster_id">
+            <column name="cluster_id"/>
+        </createIndex>
+        <!-- Masking 规则表：按集群 ID 查询索引 -->
+        <createIndex tableName="masking_rule" indexName="idx_masking_cluster_id">
+            <column name="cluster_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

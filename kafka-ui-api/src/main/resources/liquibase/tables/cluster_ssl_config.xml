@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <!--
+        SSL 配置表（1:1 复用，服务于 Truststore 和 Keystore）
+        存储集群的 SSL/TLS 配置，包括信任库和密钥库的位置与密码
+    -->
+    <changeSet id="002" author="kafka-ui">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="cluster_ssl_config"/></not>
+        </preConditions>
+        <createTable tableName="cluster_ssl_config">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="truststore_location" type="VARCHAR(512)"/>
+            <column name="truststore_password" type="VARCHAR(255)"/>
+            <column name="keystore_location" type="VARCHAR(512)"/>
+            <column name="keystore_password" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

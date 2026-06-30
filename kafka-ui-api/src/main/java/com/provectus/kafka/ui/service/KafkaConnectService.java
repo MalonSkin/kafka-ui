@@ -39,6 +39,22 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+/**
+ * Kafka Connect 管理服务。
+ *
+ * <p>提供 Kafka Connect 集群和连接器的完整管理功能，主要包括：
+ * <ul>
+ *   <li>获取 Connect 集群列表及所有连接器信息</li>
+ *   <li>连接器的创建、查询、更新配置和删除</li>
+ *   <li>连接器状态管理（重启、暂停、恢复、重启任务）</li>
+ *   <li>连接器任务的查询与重启</li>
+ *   <li>连接器插件的查询和配置验证</li>
+ *   <li>连接器关联主题的查询</li>
+ * </ul>
+ *
+ * <p>通过 {@link ReactiveFailover} 封装的 {@link KafkaConnectClientApi} 与 Connect REST API 交互，
+ * 并通过 {@link KafkaConfigSanitizer} 对敏感配置进行脱敏处理。
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -48,6 +64,12 @@ public class KafkaConnectService {
   private final ObjectMapper objectMapper;
   private final KafkaConfigSanitizer kafkaConfigSanitizer;
 
+  /**
+   * 获取集群配置的所有 Kafka Connect 集群列表。
+   *
+   * @param cluster 目标 Kafka 集群
+   * @return {@link ConnectDTO} 的响应式流
+   */
   public Flux<ConnectDTO> getConnects(KafkaCluster cluster) {
     return Flux.fromIterable(
         Optional.ofNullable(cluster.getOriginalProperties().getKafkaConnect())
@@ -56,6 +78,16 @@ public class KafkaConnectService {
     );
   }
 
+  /**
+   * 获取所有 Connect 集群中的连接器完整信息。
+   *
+   * <p>汇总每个连接器的配置、任务状态和关联主题信息，
+   * 并支持按名称、Connect 集群名、状态和类型进行搜索过滤。
+   *
+   * @param cluster 目标 Kafka 集群
+   * @param search  搜索关键字（可为 null，不区分大小写）
+   * @return {@link FullConnectorInfoDTO} 的响应式流
+   */
   public Flux<FullConnectorInfoDTO> getAllConnectors(final KafkaCluster cluster,
                                                      @Nullable final String search) {
     return getConnects(cluster)
@@ -94,6 +126,16 @@ public class KafkaConnectService {
         fullConnectorInfo.getType().getValue());
   }
 
+  /**
+   * 获取连接器关联的主题列表。
+   *
+   * <p>对于旧版本的 Connect API（不支持此端点），返回空列表以保持向后兼容。
+   *
+   * @param cluster           目标 Kafka 集群
+   * @param connectClusterName Connect 集群名称
+   * @param connectorName     连接器名称
+   * @return 包含关联主题信息的 {@link ConnectorTopics} 的 Mono
+   */
   public Mono<ConnectorTopics> getConnectorTopics(KafkaCluster cluster, String connectClusterName,
                                                   String connectorName) {
     return api(cluster, connectClusterName)
@@ -104,6 +146,13 @@ public class KafkaConnectService {
         .onErrorResume(Exception.class, e -> Mono.just(new ConnectorTopics().topics(List.of())));
   }
 
+  /**
+   * 获取指定 Connect 集群中的所有连接器名称。
+   *
+   * @param cluster     目标 Kafka 集群
+   * @param connectName Connect 集群名称
+   * @return 连接器名称的响应式流
+   */
   public Flux<String> getConnectorNames(KafkaCluster cluster, String connectName) {
     return api(cluster, connectName)
         .flux(client -> client.getConnectors(null))
@@ -113,7 +162,13 @@ public class KafkaConnectService {
         .flatMapMany(Flux::fromIterable);
   }
 
-  // returns empty flux if there was an error communicating with Connect
+  /**
+   * 获取连接器名称列表，通信错误时静默返回空流。
+   *
+   * @param cluster     目标 Kafka 集群
+   * @param connectName Connect 集群名称
+   * @return 连接器名称的响应式流，出错时为空流
+   */
   public Flux<String> getConnectorNamesWithErrorsSuppress(KafkaCluster cluster, String connectName) {
     return getConnectorNames(cluster, connectName).onErrorComplete();
   }
@@ -124,6 +179,18 @@ public class KafkaConnectService {
     });
   }
 
+  /**
+   * 创建新的连接器。
+   *
+   * <p>创建前检查同名连接器是否已存在，若存在则抛出 {@link ValidationException}。
+   * 创建成功后返回完整的连接器信息。
+   *
+   * @param cluster     目标 Kafka 集群
+   * @param connectName Connect 集群名称
+   * @param connector   包含连接器创建参数的 Mono
+   * @return 包含新创建的 {@link ConnectorDTO} 的 Mono
+   * @throws ValidationException 若同名连接器已存在
+   */
   public Mono<ConnectorDTO> createConnector(KafkaCluster cluster, String connectName,
                                             Mono<NewConnectorDTO> connector) {
     return api(cluster, connectName)
@@ -149,6 +216,17 @@ public class KafkaConnectService {
         .any(name -> name.equals(connectorName));
   }
 
+  /**
+   * 获取指定连接器的详细信息。
+   *
+   * <p>包括连接器配置（敏感信息已脱敏）、状态、类型和任务列表。
+   * 若存在失败的任务，连接器状态会被标记为 TASK_FAILED。
+   *
+   * @param cluster       目标 Kafka 集群
+   * @param connectName   Connect 集群名称
+   * @param connectorName 连接器名称
+   * @return 包含 {@link ConnectorDTO} 的 Mono
+   */
   public Mono<ConnectorDTO> getConnector(KafkaCluster cluster, String connectName,
                                          String connectorName) {
     return api(cluster, connectName)
@@ -193,6 +271,14 @@ public class KafkaConnectService {
             .state(ConnectorStatusConnector.StateEnum.UNASSIGNED)));
   }
 
+  /**
+   * 获取连接器的配置信息（敏感信息已脱敏）。
+   *
+   * @param cluster       目标 Kafka 集群
+   * @param connectName   Connect 集群名称
+   * @param connectorName 连接器名称
+   * @return 包含配置 Map 的 Mono
+   */
   public Mono<Map<String, Object>> getConnectorConfig(KafkaCluster cluster, String connectName,
                                                       String connectorName) {
     return api(cluster, connectName)
@@ -200,6 +286,15 @@ public class KafkaConnectService {
         .map(kafkaConfigSanitizer::sanitizeConnectorConfig);
   }
 
+  /**
+   * 更新连接器的配置。
+   *
+   * @param cluster       目标 Kafka 集群
+   * @param connectName   Connect 集群名称
+   * @param connectorName 连接器名称
+   * @param requestBody   包含新配置的 Mono
+   * @return 包含更新后的 {@link ConnectorDTO} 的 Mono
+   */
   public Mono<ConnectorDTO> setConnectorConfig(KafkaCluster cluster, String connectName,
                                                String connectorName, Mono<Map<String, Object>> requestBody) {
     return api(cluster, connectName)
@@ -209,12 +304,38 @@ public class KafkaConnectService {
                 .map(kafkaConnectMapper::fromClient));
   }
 
+  /**
+   * 删除指定的连接器。
+   *
+   * @param cluster       目标 Kafka 集群
+   * @param connectName   Connect 集群名称
+   * @param connectorName 连接器名称
+   * @return 删除完成的 Mono
+   */
   public Mono<Void> deleteConnector(
       KafkaCluster cluster, String connectName, String connectorName) {
     return api(cluster, connectName)
         .mono(c -> c.deleteConnector(connectorName));
   }
 
+  /**
+   * 更新连接器的状态（执行连接器操作）。
+   *
+   * <p>支持的操作类型：
+   * <ul>
+   *   <li>RESTART — 重启连接器</li>
+   *   <li>RESTART_ALL_TASKS — 重启所有任务</li>
+   *   <li>RESTART_FAILED_TASKS — 仅重启失败的任务</li>
+   *   <li>PAUSE — 暂停连接器</li>
+   *   <li>RESUME — 恢复连接器</li>
+   * </ul>
+   *
+   * @param cluster       目标 Kafka 集群
+   * @param connectName   Connect 集群名称
+   * @param connectorName 连接器名称
+   * @param action        操作类型
+   * @return 操作完成的 Mono
+   */
   public Mono<Void> updateConnectorState(KafkaCluster cluster, String connectName,
                                          String connectorName, ConnectorActionDTO action) {
     return api(cluster, connectName)
@@ -246,6 +367,14 @@ public class KafkaConnectService {
         .then();
   }
 
+  /**
+   * 获取连接器的所有任务及其状态。
+   *
+   * @param cluster       目标 Kafka 集群
+   * @param connectName   Connect 集群名称
+   * @param connectorName 连接器名称
+   * @return {@link TaskDTO} 的响应式流
+   */
   public Flux<TaskDTO> getConnectorTasks(KafkaCluster cluster, String connectName, String connectorName) {
     return api(cluster, connectName)
         .flux(client ->
@@ -261,18 +390,43 @@ public class KafkaConnectService {
                 ));
   }
 
+  /**
+   * 重启连接器的指定任务。
+   *
+   * @param cluster       目标 Kafka 集群
+   * @param connectName   Connect 集群名称
+   * @param connectorName 连接器名称
+   * @param taskId        任务 ID
+   * @return 重启完成的 Mono
+   */
   public Mono<Void> restartConnectorTask(KafkaCluster cluster, String connectName,
                                          String connectorName, Integer taskId) {
     return api(cluster, connectName)
         .mono(client -> client.restartConnectorTask(connectorName, taskId));
   }
 
+  /**
+   * 获取指定 Connect 集群中安装的所有连接器插件。
+   *
+   * @param cluster     目标 Kafka 集群
+   * @param connectName Connect 集群名称
+   * @return {@link ConnectorPluginDTO} 的响应式流
+   */
   public Flux<ConnectorPluginDTO> getConnectorPlugins(KafkaCluster cluster,
                                                       String connectName) {
     return api(cluster, connectName)
         .flux(client -> client.getConnectorPlugins().map(kafkaConnectMapper::fromClient));
   }
 
+  /**
+   * 验证连接器插件的配置参数。
+   *
+   * @param cluster     目标 Kafka 集群
+   * @param connectName Connect 集群名称
+   * @param pluginName  插件名称
+   * @param requestBody 包含待验证配置的 Mono
+   * @return 包含验证结果的 {@link ConnectorPluginConfigValidationResponseDTO} 的 Mono
+   */
   public Mono<ConnectorPluginConfigValidationResponseDTO> validateConnectorPluginConfig(
       KafkaCluster cluster, String connectName, String pluginName, Mono<Map<String, Object>> requestBody) {
     return api(cluster, connectName)
