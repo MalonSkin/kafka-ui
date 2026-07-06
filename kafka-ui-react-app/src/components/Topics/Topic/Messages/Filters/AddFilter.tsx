@@ -9,6 +9,7 @@ import useBoolean from 'lib/hooks/useBoolean';
 import { showAlert } from 'lib/errorHandling';
 
 import AddEditFilterContainer from './AddEditFilterContainer';
+import { useTranslation } from 'react-i18next';
 import InfoModal from './InfoModal';
 
 export interface FilterModalProps {
@@ -40,6 +41,8 @@ const AddFilter: React.FC<FilterModalProps> = ({
   onClickSavedFilters,
   activeFilter,
 }) => {
+  // 引入 i18n 翻译函数
+  const { t } = useTranslation();
   const { value: isOpen, toggle } = useBoolean();
 
   const onSubmit = React.useCallback(
@@ -51,8 +54,9 @@ const AddFilter: React.FC<FilterModalProps> = ({
       if (isFilterExists) {
         showAlert('error', {
           id: '',
-          title: 'Validation Error',
-          message: 'Filter with the same name already exists',
+          // 验证错误提示标题
+          title: t('error.validationError'),
+          message: t('topic.filterNameAlreadyExists'),
         });
         return;
       }
@@ -75,11 +79,11 @@ const AddFilter: React.FC<FilterModalProps> = ({
   return (
     <>
       <S.FilterTitle>
-        Add filter
+        {t('topic.addFilter')}
         <div>
           <S.QuestionIconContainer
             type="button"
-            aria-label="info"
+            aria-label={t('topic.infoModal.jsonParsingLogic')}
             onClick={toggle}
           >
             <QuestionIcon />
@@ -105,11 +109,11 @@ const AddFilter: React.FC<FilterModalProps> = ({
           <S.SavedFiltersTextContainer
             onClick={() => onClickSavedFilters(!isSavedFiltersOpen)}
           >
-            <SavedIcon /> <S.SavedFiltersText>Saved Filters</S.SavedFiltersText>
+            <SavedIcon /> <S.SavedFiltersText>{t('topic.savedFilters')}</S.SavedFiltersText>
           </S.SavedFiltersTextContainer>
           <AddEditFilterContainer
             cancelBtnHandler={toggleIsOpen}
-            submitBtnText="Add filter"
+            submitBtnText={t('topic.addFilter')}
             submitCallback={onSubmit}
             isAdd
           />

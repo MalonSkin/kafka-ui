@@ -1,5 +1,6 @@
 import { MenuProps } from '@szhsin/react-menu';
 import React, { PropsWithChildren, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import VerticalElipsisIcon from 'components/common/Icons/VerticalElipsisIcon';
 import useBoolean from 'lib/hooks/useBoolean';
 
@@ -11,6 +12,8 @@ interface DropdownProps extends PropsWithChildren<Partial<MenuProps>> {
 }
 
 const Dropdown: React.FC<DropdownProps> = ({ label, disabled, children }) => {
+  // i18n: 获取国际化翻译函数
+  const { t } = useTranslation();
   const ref = useRef(null);
   const { value: isOpen, setFalse, setTrue } = useBoolean(false);
 
@@ -25,7 +28,7 @@ const Dropdown: React.FC<DropdownProps> = ({ label, disabled, children }) => {
       <S.DropdownButton
         onClick={handleClick}
         ref={ref}
-        aria-label="Dropdown Toggle"
+        aria-label={t('common.dropdownToggle')}
         disabled={disabled}
       >
         {label || <VerticalElipsisIcon />}

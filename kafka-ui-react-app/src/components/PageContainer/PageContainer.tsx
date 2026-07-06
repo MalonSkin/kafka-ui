@@ -9,8 +9,12 @@ import { GlobalSettingsContext } from 'components/contexts/GlobalSettingsContext
 import { useClusters } from 'lib/hooks/api/clusters';
 import { ResourceType } from 'generated-sources';
 import { useGetUserInfo } from 'lib/hooks/api/roles';
+import { useTranslation } from 'react-i18next';
 
 const PageContainer: React.FC<PropsWithChildren<unknown>> = ({ children }) => {
+  // 引入 i18n 翻译函数
+
+  const { t } = useTranslation();
   const {
     value: isSidebarVisible,
     toggle,
@@ -44,7 +48,7 @@ const PageContainer: React.FC<PropsWithChildren<unknown>> = ({ children }) => {
     <>
       <NavBar onBurgerClick={toggle} />
       <S.Container>
-        <S.Sidebar aria-label="Sidebar" $visible={isSidebarVisible}>
+        <S.Sidebar aria-label={t('common.sidebar')} $visible={isSidebarVisible}>
           <Nav />
         </S.Sidebar>
         <S.Overlay
@@ -53,7 +57,7 @@ const PageContainer: React.FC<PropsWithChildren<unknown>> = ({ children }) => {
           onKeyDown={closeSidebar}
           tabIndex={-1}
           aria-hidden="true"
-          aria-label="Overlay"
+          aria-label={t('topic.overlay')}
         />
         {children}
       </S.Container>

@@ -10,6 +10,7 @@ import { AddMessageFilters } from 'components/Topics/Topic/Messages/Filters/AddF
 import Editor from 'components/common/Editor/Editor';
 import { yupResolver } from '@hookform/resolvers/yup';
 import yup from 'lib/yupExtended';
+import { useTranslation } from 'react-i18next';
 
 const validationSchema = yup.object().shape({
   saveFilter: yup.boolean(),
@@ -38,6 +39,8 @@ const AddEditFilterContainer: React.FC<AddEditFilterContainerProps> = ({
   submitCallback,
   isAdd,
 }) => {
+  // 引入 i18n 翻译函数
+  const { t } = useTranslation();
   const methods = useForm<AddMessageFilters>({
     mode: 'onChange',
     resolver: yupResolver(validationSchema),
@@ -63,9 +66,9 @@ const AddEditFilterContainer: React.FC<AddEditFilterContainerProps> = ({
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(onSubmit)} aria-label="Filters submit Form">
+      <form onSubmit={handleSubmit(onSubmit)} aria-label={t('topic.filters')}>
         <div>
-          <InputLabel>Filter code</InputLabel>
+          <InputLabel>{t('topic.filterCode')}</InputLabel>
           <Controller
             control={control}
             name="code"
@@ -91,14 +94,14 @@ const AddEditFilterContainer: React.FC<AddEditFilterContainerProps> = ({
         {isAdd && (
           <InputLabel>
             <input {...methods.register('saveFilter')} type="checkbox" />
-            Save this filter
+            {t('topic.saveThisFilter')}
           </InputLabel>
         )}
         <div>
-          <InputLabel>Display name</InputLabel>
+          <InputLabel>{t('topic.displayName')}</InputLabel>
           <Input
             inputSize="M"
-            placeholder="Enter Name"
+            placeholder={t('topic.enterName')}
             autoComplete="off"
             name="name"
             defaultValue={inputDisplayNameDefaultValue}
@@ -116,7 +119,7 @@ const AddEditFilterContainer: React.FC<AddEditFilterContainerProps> = ({
             type="button"
             onClick={cancelBtnHandler}
           >
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             buttonSize="M"

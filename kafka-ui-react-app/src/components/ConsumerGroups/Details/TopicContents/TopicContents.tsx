@@ -2,6 +2,7 @@ import { Table } from 'components/common/table/Table/Table.styled';
 import TableHeaderCell from 'components/common/table/TableHeaderCell/TableHeaderCell';
 import { ConsumerGroupTopicPartition, SortOrder } from 'generated-sources';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { ContentBox, TopicContentWrapper } from './TopicContent.styled';
 
@@ -14,15 +15,6 @@ interface Headers {
   title: string;
   orderBy: OrderByKey | undefined;
 }
-
-const TABLE_HEADERS_MAP: Headers[] = [
-  { title: 'Partition', orderBy: 'partition' },
-  { title: 'Consumer ID', orderBy: 'consumerId' },
-  { title: 'Host', orderBy: 'host' },
-  { title: 'Consumer Lag', orderBy: 'consumerLag' },
-  { title: 'Current Offset', orderBy: 'currentOffset' },
-  { title: 'End offset', orderBy: 'endOffset' },
-];
 
 const ipV4ToNum = (ip?: string) => {
   if (typeof ip === 'string' && ip.length !== 0) {
@@ -90,8 +82,23 @@ const consumerIdComparator: ComparatorFunction<ConsumerGroupTopicPartition> = (
 };
 
 const TopicContents: React.FC<Props> = ({ consumers }) => {
+  // 引入 i18n 翻译函数
+  const { t } = useTranslation();
   const [orderBy, setOrderBy] = React.useState<OrderByKey>('partition');
   const [sortOrder, setSortOrder] = React.useState<SortOrder>(SortOrder.DESC);
+
+  // 表头映射，使用 i18n 翻译
+  const tableHeaders = React.useMemo<Headers[]>(
+    () => [
+      { title: t('consumerGroup.partition'), orderBy: 'partition' },
+      { title: t('consumerGroup.consumerId'), orderBy: 'consumerId' },
+      { title: t('common.host'), orderBy: 'host' },
+      { title: t('consumerGroup.consumerLag'), orderBy: 'consumerLag' },
+      { title: t('consumerGroup.currentOffset'), orderBy: 'currentOffset' },
+      { title: t('consumerGroup.endOffset'), orderBy: 'endOffset' },
+    ],
+    [t]
+  );
 
   const handleOrder = React.useCallback((columnName: string | null) => {
     if (typeof columnName === 'string') {
@@ -135,7 +142,7 @@ const TopicContents: React.FC<Props> = ({ consumers }) => {
           <Table isFullwidth>
             <thead>
               <tr>
-                {TABLE_HEADERS_MAP.map((header) => (
+                {tableHeaders.map((header) => (
                   <TableHeaderCell
                     key={header.orderBy}
                     title={header.title}

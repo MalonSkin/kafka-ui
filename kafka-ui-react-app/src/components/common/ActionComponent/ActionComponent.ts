@@ -1,5 +1,6 @@
 import { Placement } from '@floating-ui/react';
 import { Action, ResourceType } from 'generated-sources';
+import i18n from 'i18n/config';
 
 export interface ActionComponentProps {
   permission: {
@@ -12,5 +13,5 @@ export interface ActionComponentProps {
 }
 
 export function getDefaultActionMessage() {
-  return "You don't have a required permission to perform this action";
+  return i18n.t('common.noPermission');
 }

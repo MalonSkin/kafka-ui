@@ -13,11 +13,14 @@ import { Button } from 'components/common/Button/Button';
 import { useSearchParams } from 'react-router-dom';
 import { MESSAGES_PER_PAGE } from 'lib/constants';
 import * as S from 'components/common/NewTable/Table.styled';
+import { useTranslation } from 'react-i18next';
 
 import PreviewModal from './PreviewModal';
 import Message, { PreviewFilter } from './Message';
 
 const MessagesTable: React.FC = () => {
+  // 引入 i18n 翻译函数
+  const { t } = useTranslation();
   const [previewFor, setPreviewFor] = useState<string | null>(null);
 
   const [keyFilters, setKeyFilters] = useState<PreviewFilter[]>([]);
@@ -68,23 +71,17 @@ const MessagesTable: React.FC = () => {
         <thead>
           <tr>
             <TableHeaderCell> </TableHeaderCell>
-            <TableHeaderCell title="Offset" />
-            <TableHeaderCell title="Partition" />
-            <TableHeaderCell title="Timestamp" />
+            <TableHeaderCell title={t('topic.offset')} />
+            <TableHeaderCell title={t('topic.partition')} />
+            <TableHeaderCell title={t('topic.timestamp')} />
             <TableHeaderCell
-              title="Key"
-              previewText={`Preview ${
-                keyFilters.length ? `(${keyFilters.length} selected)` : ''
-              }`}
+              title={t('topic.key')}
+              previewText={keyFilters.length ? t('topic.previewWithCount', { count: keyFilters.length }) : t('topic.preview')}
               onPreview={() => setPreviewFor('key')}
             />
             <TableHeaderCell
-              title="Value"
-              previewText={`Preview ${
-                contentFilters.length
-                  ? `(${contentFilters.length} selected)`
-                  : ''
-              }`}
+              title={t('topic.value')}
+              previewText={contentFilters.length ? t('topic.previewWithCount', { count: contentFilters.length }) : t('topic.preview')}
               onPreview={() => setPreviewFor('content')}
             />
             <TableHeaderCell> </TableHeaderCell>
@@ -113,7 +110,8 @@ const MessagesTable: React.FC = () => {
           )}
           {messages.length === 0 && !isFetching && (
             <tr>
-              <td colSpan={10}>No messages found</td>
+              {/* 未找到消息时的占位文案 */}
+              <td colSpan={10}>{t('topic.noMessagesFound')}</td>
             </tr>
           )}
         </tbody>
@@ -126,7 +124,7 @@ const MessagesTable: React.FC = () => {
             disabled={isPrevPageButtonDisabled}
             onClick={handlePrevPage}
           >
-            ← Back
+            {t('common.backButton')}
           </Button>
           <Button
             buttonType="secondary"
@@ -134,7 +132,7 @@ const MessagesTable: React.FC = () => {
             disabled={isNextPageButtonDisabled}
             onClick={handleNextPage}
           >
-            Next →
+            {t('common.next')}
           </Button>
         </S.Pages>
       </S.Pagination>

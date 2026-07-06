@@ -1,6 +1,7 @@
 import React from 'react';
 import { MILLISECONDS_IN_DAY } from 'lib/constants';
 import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
 
 import TimeToRetainBtn from './TimeToRetainBtn';
 
@@ -15,34 +16,37 @@ const TimeToRetainBtnsWrapper = styled.div`
   padding-top: 8px;
 `;
 
-const TimeToRetainBtns: React.FC<Props> = ({ name }) => (
-  <TimeToRetainBtnsWrapper>
-    <TimeToRetainBtn
-      text="12 hours"
-      inputName={name}
-      value={MILLISECONDS_IN_DAY / 2}
-    />
-    <TimeToRetainBtn
-      text="1 day"
-      inputName={name}
-      value={MILLISECONDS_IN_DAY}
-    />
-    <TimeToRetainBtn
-      text="2 days"
-      inputName={name}
-      value={MILLISECONDS_IN_DAY * 2}
-    />
-    <TimeToRetainBtn
-      text="7 days"
-      inputName={name}
-      value={MILLISECONDS_IN_DAY * 7}
-    />
-    <TimeToRetainBtn
-      text="4 weeks"
-      inputName={name}
-      value={MILLISECONDS_IN_DAY * 7 * 4}
-    />
-  </TimeToRetainBtnsWrapper>
-);
+const TimeToRetainBtns: React.FC<Props> = ({ name }) => {
+  const { t } = useTranslation();
+  return (
+    <TimeToRetainBtnsWrapper>
+      <TimeToRetainBtn
+        text={t('topic.retain12Hours')}
+        inputName={name}
+        value={MILLISECONDS_IN_DAY / 2}
+      />
+      <TimeToRetainBtn
+        text={t('topic.retain1Day')}
+        inputName={name}
+        value={MILLISECONDS_IN_DAY}
+      />
+      <TimeToRetainBtn
+        text={t('topic.retain2Days')}
+        inputName={name}
+        value={MILLISECONDS_IN_DAY * 2}
+      />
+      <TimeToRetainBtn
+        text={t('topic.retain7Days')}
+        inputName={name}
+        value={MILLISECONDS_IN_DAY * 7}
+      />
+      <TimeToRetainBtn
+        text={t('topic.retain4Weeks')}
+        inputName={name}
+        value={MILLISECONDS_IN_DAY * 7 * 4}
+      />
+    </TimeToRetainBtnsWrapper>
+  );
+};
 
 export default TimeToRetainBtns;

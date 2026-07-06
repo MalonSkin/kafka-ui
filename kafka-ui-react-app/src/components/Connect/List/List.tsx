@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import useAppParams from 'lib/hooks/useAppParams';
 import { clusterConnectConnectorPath, ClusterNameRoute } from 'lib/paths';
 import Table, { TagCell } from 'components/common/NewTable';
@@ -12,6 +13,8 @@ import TopicsCell from './TopicsCell';
 import RunningTasksCell from './RunningTasksCell';
 
 const List: React.FC = () => {
+  // 引入 i18n 翻译函数
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { clusterName } = useAppParams<ClusterNameRoute>();
   const [searchParams] = useSearchParams();
@@ -22,16 +25,16 @@ const List: React.FC = () => {
 
   const columns = React.useMemo<ColumnDef<FullConnectorInfo>[]>(
     () => [
-      { header: 'Name', accessorKey: 'name' },
-      { header: 'Connect', accessorKey: 'connect' },
-      { header: 'Type', accessorKey: 'type' },
-      { header: 'Plugin', accessorKey: 'connectorClass' },
-      { header: 'Topics', cell: TopicsCell },
-      { header: 'Status', accessorKey: 'status.state', cell: TagCell },
-      { header: 'Running Tasks', cell: RunningTasksCell },
+      { header: t('connector.name'), accessorKey: 'name' },
+      { header: t('common.kafkaConnect'), accessorKey: 'connect' },
+      { header: t('common.type'), accessorKey: 'type' },
+      { header: t('common.plugin'), accessorKey: 'connectorClass' },
+      { header: t('common.topics'), cell: TopicsCell },
+      { header: t('common.status'), accessorKey: 'status.state', cell: TagCell },
+      { header: t('connector.tasksRunning'), cell: RunningTasksCell },
       { header: '', id: 'action', cell: ActionsCell },
     ],
-    []
+    [t]
   );
 
   return (
@@ -42,7 +45,7 @@ const List: React.FC = () => {
       onRowClick={({ original: { connect, name } }) =>
         navigate(clusterConnectConnectorPath(clusterName, connect, name))
       }
-      emptyMessage="No connectors found"
+      emptyMessage={t('connector.noConnectorsFound')}
     />
   );
 };

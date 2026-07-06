@@ -8,6 +8,7 @@ import EditIcon from 'components/common/Icons/EditIcon';
 import CancelIcon from 'components/common/Icons/CancelIcon';
 
 import * as S from './PreviewModal.styled';
+import { useTranslation } from 'react-i18next';
 import { PreviewFilter } from './Message';
 
 export interface InfoModalProps {
@@ -21,6 +22,8 @@ const PreviewModal: React.FC<InfoModalProps> = ({
   toggleIsOpen,
   setFilters,
 }) => {
+  // 引入 i18n 翻译函数
+  const { t } = useTranslation();
   const [field, setField] = React.useState('');
   const [path, setPath] = React.useState('');
   const [errors, setErrors] = React.useState<string[]>([]);
@@ -87,29 +90,29 @@ const PreviewModal: React.FC<InfoModalProps> = ({
         </S.EditForm>
       ))}
       <div>
-        <InputLabel htmlFor="previewFormField">Field</InputLabel>
+        <InputLabel htmlFor="previewFormField">{t('topic.field')}</InputLabel>
         <Input
           type="text"
           id="previewFormField"
           min="1"
           value={field}
-          placeholder="Field"
+          placeholder={t('topic.field')}
           onChange={({ target }) => setField(target?.value)}
         />
-        <FormError>{errors.includes('field') && 'Field is required'}</FormError>
+        <FormError>{errors.includes('field') && t('topic.fieldRequired')}</FormError>
       </div>
       <div>
-        <InputLabel htmlFor="previewFormJsonPath">Json path</InputLabel>
+        <InputLabel htmlFor="previewFormJsonPath">{t('topic.jsonPath')}</InputLabel>
         <Input
           type="text"
           id="previewFormJsonPath"
           min="1"
           value={path}
-          placeholder="Json Path"
+          placeholder={t('topic.jsonPath')}
           onChange={({ target }) => setPath(target?.value)}
         />
         <FormError>
-          {errors.includes('path') && 'Json path is required'}
+          {errors.includes('path') && t('topic.jsonPathRequired')}
         </FormError>
       </div>
       <S.ButtonWrapper>
@@ -119,7 +122,7 @@ const PreviewModal: React.FC<InfoModalProps> = ({
           type="button"
           onClick={toggleIsOpen}
         >
-          Close
+          {t('common.close')}
         </Button>
         <Button
           buttonSize="M"
@@ -127,7 +130,7 @@ const PreviewModal: React.FC<InfoModalProps> = ({
           type="button"
           onClick={handleOk}
         >
-          Save
+          {t('common.save')}
         </Button>
       </S.ButtonWrapper>
     </S.PreviewModal>

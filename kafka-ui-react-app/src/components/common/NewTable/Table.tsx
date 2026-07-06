@@ -25,6 +25,7 @@ import updatePaginationState from './utils/updatePaginationState';
 import ExpanderCell from './ExpanderCell';
 import SelectRowCell from './SelectRowCell';
 import SelectRowHeader from './SelectRowHeader';
+import { useTranslation } from 'react-i18next';
 
 export interface TableProps<TData> {
   data: TData[];
@@ -133,6 +134,8 @@ const Table: React.FC<TableProps<any>> = ({
   onRowHover,
   onMouseLeave,
 }) => {
+  // 引入 i18n 翻译函数
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
   const [rowSelection, setRowSelection] = React.useState({});
@@ -322,7 +325,7 @@ const Table: React.FC<TableProps<any>> = ({
             {table.getRowModel().rows.length === 0 && (
               <S.Row>
                 <S.EmptyTableMessageCell colSpan={100}>
-                  {emptyMessage || 'No rows found'}
+                  {emptyMessage || t('common.noRowsFound')}
                 </S.EmptyTableMessageCell>
               </S.Row>
             )}
@@ -346,7 +349,7 @@ const Table: React.FC<TableProps<any>> = ({
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
             >
-              ← Previous
+              {t('common.previousPage')}
             </Button>
             <Button
               buttonType="secondary"
@@ -354,7 +357,7 @@ const Table: React.FC<TableProps<any>> = ({
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
             >
-              Next →
+              {t('common.nextPage')}
             </Button>
             <Button
               buttonType="secondary"
@@ -366,7 +369,7 @@ const Table: React.FC<TableProps<any>> = ({
             </Button>
 
             <S.GoToPage>
-              <span>Go to page:</span>
+              <span>{t('common.goToPage')}</span>
               <Input
                 type="number"
                 positiveOnly
@@ -383,8 +386,7 @@ const Table: React.FC<TableProps<any>> = ({
           </S.Pages>
           <S.PageInfo>
             <span>
-              Page {table.getState().pagination.pageIndex + 1} of{' '}
-              {table.getPageCount()}{' '}
+              {t('common.pageOf', { current: table.getState().pagination.pageIndex + 1, total: table.getPageCount() })}{' '}
             </span>
           </S.PageInfo>
         </S.Pagination>

@@ -4,6 +4,7 @@ import DeleteIcon from 'components/common/Icons/DeleteIcon';
 import { useConfirm } from 'lib/hooks/useConfirm';
 
 import * as S from './Filters.styled';
+import { useTranslation } from 'react-i18next';
 import { MessageFilters } from './Filters';
 
 export interface Props {
@@ -25,6 +26,8 @@ const SavedFilters: FC<Props> = ({
   onGoBack,
   activeFilter,
 }) => {
+  // 引入 i18n 翻译函数
+  const { t } = useTranslation();
   const [selectedFilter, setSelectedFilter] = React.useState(-1);
   const confirm = useConfirm();
 
@@ -39,32 +42,28 @@ const SavedFilters: FC<Props> = ({
     const filterName = filters[index]?.name;
     const isFilterSelected = activeFilter && activeFilter.name === filterName;
 
-    confirm(
-      <>
-        <p>Are you sure want to remove {filterName}?</p>
-        {isFilterSelected && (
-          <>
-            <br />
-            <p>Warning: this filter is currently selected.</p>
-          </>
-        )}
-      </>,
-      () => {
-        deleteFilter(index);
-        setSelectedFilter(-1);
-      }
-    );
+    // 确认删除过滤器的提示，若该过滤器当前被选中则附带警告
+    const confirmMessage = isFilterSelected
+      ? `${t('topic.areYouSureRemoveFilter', { filterName })}\n${t(
+          'topic.warningFilterSelected'
+        )}`
+      : t('topic.areYouSureRemoveFilter', { filterName });
+
+    confirm(confirmMessage, () => {
+      deleteFilter(index);
+      setSelectedFilter(-1);
+    });
   };
 
   return (
     <>
       <S.BackToCustomText onClick={onGoBack}>
-        Back To create filters
+        {t('topic.backToCreateFilters')}
       </S.BackToCustomText>
       <S.SavedFiltersContainer>
-        <S.CreatedFilter>Saved filters</S.CreatedFilter>
+        <S.CreatedFilter>{t('topic.savedFilters')}</S.CreatedFilter>
         {filters.length === 0 && (
-          <S.NoSavedFilter>No saved filter(s)</S.NoSavedFilter>
+          <S.NoSavedFilter>{t('topic.noSavedFilters')}</S.NoSavedFilter>
         )}
         {filters.map((filter, index) => (
           <S.SavedFilter
@@ -75,7 +74,7 @@ const SavedFilters: FC<Props> = ({
             <S.SavedFilterName>{filter.name}</S.SavedFilterName>
             <S.FilterOptions>
               <S.FilterEdit onClick={() => onEdit(index, filter)}>
-                Edit
+                {t('common.edit')}
               </S.FilterEdit>
               <S.DeleteSavedFilter onClick={() => deleteFilterHandler(index)}>
                 <DeleteIcon />
@@ -91,7 +90,7 @@ const SavedFilters: FC<Props> = ({
           type="button"
           onClick={closeModal}
         >
-          Cancel
+          {t('common.cancel')}
         </Button>
         <Button
           buttonSize="M"
@@ -100,7 +99,7 @@ const SavedFilters: FC<Props> = ({
           onClick={activateFilter}
           disabled={selectedFilter === -1}
         >
-          Select filter
+          {t('topic.selectFilter')}
         </Button>
       </S.FilterButtonWrapper>
     </>

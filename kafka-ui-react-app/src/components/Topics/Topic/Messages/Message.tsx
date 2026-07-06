@@ -9,6 +9,8 @@ import { JSONPath } from 'jsonpath-plus';
 import Ellipsis from 'components/common/Ellipsis/Ellipsis';
 import WarningRedIcon from 'components/common/Icons/WarningRedIcon';
 import Tooltip from 'components/common/Tooltip/Tooltip';
+// 引入 i18n 翻译函数，用于替换硬编码英文文案
+import { useTranslation } from 'react-i18next';
 
 import MessageContent from './MessageContent/MessageContent';
 import * as S from './MessageContent/MessageContent.styled';
@@ -41,6 +43,8 @@ const Message: React.FC<Props> = ({
   keyFilters,
   contentFilters,
 }) => {
+  // 引入 i18n 翻译函数
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = React.useState(false);
   const savedMessageJson = {
     Value: content,
@@ -114,7 +118,7 @@ const Message: React.FC<Props> = ({
             {keySerde === 'Fallback' && (
               <Tooltip
                 value={<WarningRedIcon />}
-                content="Fallback serde was used"
+                content={t('topic.fallbackSerdeUsed')}
                 placement="left"
               />
             )}
@@ -127,7 +131,7 @@ const Message: React.FC<Props> = ({
                 {valueSerde === 'Fallback' && (
                   <Tooltip
                     value={<WarningRedIcon />}
-                    content="Fallback serde was used"
+                    content={t('topic.fallbackSerdeUsed')}
                     placement="left"
                   />
                 )}
@@ -139,9 +143,10 @@ const Message: React.FC<Props> = ({
           {vEllipsisOpen && (
             <Dropdown>
               <DropdownItem onClick={copyToClipboard}>
-                Copy to clipboard
+                {t('common.copyToClipboard')}
               </DropdownItem>
-              <DropdownItem onClick={saveFile}>Save as a file</DropdownItem>
+              {/* 保存为文件，文案走 i18n */}
+              <DropdownItem onClick={saveFile}>{t('topic.saveAsFile')}</DropdownItem>
             </Dropdown>
           )}
         </td>

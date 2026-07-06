@@ -1,5 +1,6 @@
 import React from 'react';
 import * as S from 'components/Topics/Topic/Messages/Filters/Filters.styled';
+import { useTranslation } from 'react-i18next';
 import { Button } from 'components/common/Button/Button';
 
 interface InfoModalProps {
@@ -7,37 +8,36 @@ interface InfoModalProps {
 }
 
 const InfoModal: React.FC<InfoModalProps> = ({ toggleIsOpen }) => {
+  // 引入 i18n 翻译函数
+  const { t } = useTranslation();
   return (
     <S.InfoModal>
       <S.InfoParagraph>
-        <b>Variables bound to groovy context:</b> partition, timestampMs,
+        <b>{t('topic.variablesBound')}</b> partition, timestampMs,
         keyAsText, valueAsText, header, key (json if possible), value (json if
         possible).
       </S.InfoParagraph>
       <S.InfoParagraph>
-        <b>JSON parsing logic:</b>
+        <b>{t('topic.infoModal.jsonParsingLogic')}</b>
       </S.InfoParagraph>
+      <S.InfoParagraph>{t('topic.infoModal.jsonParsingDesc')}</S.InfoParagraph>
       <S.InfoParagraph>
-        Key and Value (if they can be parsed to JSON) they are bound as JSON
-        objects, otherwise bound as nulls.
+        <b>{t('topic.sampleFilters')}</b>
       </S.InfoParagraph>
-      <S.InfoParagraph>
-        <b>Sample filters:</b>
-      </S.InfoParagraph>
-      <ol aria-label="info-list">
+      <ol aria-label={t('topic.infoModal.jsonParsingLogic')}>
         <S.ListItem>
-          <code>keyAsText != null && keyAsText ~&quot;([Gg])roovy&quot;</code> -
-          regex for key as a string
+          <code>keyAsText != null && keyAsText ~&quot;([Gg])roovy&quot;</code> -{' '}
+          {t('topic.infoModal.regexKeyString')}
         </S.ListItem>
         <S.ListItem>
           <code>
             value.name == &quot;iS.ListItemax&quot; && value.age &gt; 30
           </code>{' '}
-          - in case value is json
+          - {t('topic.infoModal.caseValueIsJson')}
         </S.ListItem>
         <S.ListItem>
-          <code>value == null && valueAsText != null</code> - search for values
-          that are not nulls and are not json
+          <code>value == null && valueAsText != null</code> -{' '}
+          {t('topic.infoModal.searchNonNullOrNonJson')}
         </S.ListItem>
         <S.ListItem>
           <code>
@@ -46,7 +46,7 @@ const InfoModal: React.FC<InfoModalProps> = ({ toggleIsOpen }) => {
           </code>
         </S.ListItem>
         <S.ListItem>
-          multiline filters are also allowed:
+          {t('topic.infoModal.multilineFilters')}
           <S.InfoParagraph>
             <pre>
               def name = value.name
@@ -66,7 +66,7 @@ const InfoModal: React.FC<InfoModalProps> = ({ toggleIsOpen }) => {
           type="button"
           onClick={toggleIsOpen}
         >
-          Ok
+          {t('common.ok')}
         </Button>
       </S.ButtonContainer>
     </S.InfoModal>

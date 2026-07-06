@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import PageHeading from 'components/common/PageHeading/PageHeading';
 import * as Metrics from 'components/common/Metrics';
 import { Tag } from 'components/common/Tag/Tag.styled';
@@ -20,6 +21,7 @@ import ClusterName from './ClusterName';
 import ClusterTableActionsCell from './ClusterTableActionsCell';
 
 const Dashboard: React.FC = () => {
+  const { t } = useTranslation();
   const { data } = useGetUserInfo();
   const clusters = useClusters();
   const { value: showOfflineOnly, toggle } = useBoolean(false);
@@ -47,14 +49,15 @@ const Dashboard: React.FC = () => {
   );
 
   const columns = React.useMemo<ColumnDef<Cluster>[]>(() => {
+    // 表头使用 i18n 翻译
     const initialColumns: ColumnDef<Cluster>[] = [
-      { header: 'Cluster name', accessorKey: 'name', cell: ClusterName },
-      { header: 'Version', accessorKey: 'version' },
-      { header: 'Brokers count', accessorKey: 'brokerCount' },
-      { header: 'Partitions', accessorKey: 'onlinePartitionCount' },
-      { header: 'Topics', accessorKey: 'topicCount' },
-      { header: 'Production', accessorKey: 'bytesInPerSec', cell: SizeCell },
-      { header: 'Consumption', accessorKey: 'bytesOutPerSec', cell: SizeCell },
+      { header: t('common.clusterName'), accessorKey: 'name', cell: ClusterName },
+      { header: t('common.version'), accessorKey: 'version' },
+      { header: t('common.brokersCount'), accessorKey: 'brokerCount' },
+      { header: t('common.partitions'), accessorKey: 'onlinePartitionCount' },
+      { header: t('common.topics'), accessorKey: 'topicCount' },
+      { header: t('common.production'), accessorKey: 'bytesInPerSec', cell: SizeCell },
+      { header: t('common.consumption'), accessorKey: 'bytesOutPerSec', cell: SizeCell },
     ];
 
     if (appInfo.hasDynamicConfig) {
@@ -66,7 +69,7 @@ const Dashboard: React.FC = () => {
     }
 
     return initialColumns;
-  }, []);
+  }, [t]);
 
   const hasPermissions = useMemo(() => {
     if (!data?.rbacEnabled) return true;
@@ -76,16 +79,16 @@ const Dashboard: React.FC = () => {
   }, [data]);
   return (
     <>
-      <PageHeading text="Dashboard" />
+      <PageHeading text={t('common.dashboard')} />
       <Metrics.Wrapper>
         <Metrics.Section>
-          <Metrics.Indicator label={<Tag color="green">Online</Tag>}>
+          <Metrics.Indicator label={<Tag color="green">{t('common.online')}</Tag>}>
             <span>{config.online || 0}</span>{' '}
-            <Metrics.LightText>clusters</Metrics.LightText>
+            <Metrics.LightText>{t('common.clusters')}</Metrics.LightText>
           </Metrics.Indicator>
-          <Metrics.Indicator label={<Tag color="gray">Offline</Tag>}>
+          <Metrics.Indicator label={<Tag color="gray">{t('common.offline')}</Tag>}>
             <span>{config.offline || 0}</span>{' '}
-            <Metrics.LightText>clusters</Metrics.LightText>
+            <Metrics.LightText>{t('common.clusters')}</Metrics.LightText>
           </Metrics.Indicator>
         </Metrics.Section>
       </Metrics.Wrapper>
@@ -96,7 +99,7 @@ const Dashboard: React.FC = () => {
             checked={showOfflineOnly}
             onChange={toggle}
           />
-          <label>Only offline clusters</label>
+          <label>{t('common.onlyOfflineClusters')}</label>
           <IconButton onClick={refreshClusters} color="primary">
             <RefreshIcon />
           </IconButton>
@@ -108,15 +111,15 @@ const Dashboard: React.FC = () => {
             to={clusterNewConfigPath}
             canDoAction={hasPermissions}
           >
-            Configure new cluster
+            {t('common.configureNewCluster')}
           </ActionCanButton>
         )}
       </S.Toolbar>
       <Table
         columns={columns}
         data={config?.list}
-        enableSorting-
-        emptyMessage={clusters.isFetched ? 'No clusters found' : 'Loading...'}
+        enableSorting
+        emptyMessage={clusters.isFetched ? t('common.noClustersFound') : t('common.loading')}
       />
     </>
   );

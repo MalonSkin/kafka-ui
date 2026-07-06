@@ -16,8 +16,12 @@ import { PER_PAGE } from 'lib/constants';
 import { ActionSelect } from 'components/common/ActionComponent';
 
 import * as S from './GlobalSchemaSelector.styled';
+import { useTranslation } from 'react-i18next';
 
 const GlobalSchemaSelector: React.FC = () => {
+  // 引入 i18n 翻译函数
+
+  const { t } = useTranslation();
   const { clusterName } = useAppParams<ClusterNameRoute>();
   const dispatch = useAppDispatch();
   const [searchParams] = useSearchParams();
@@ -48,12 +52,9 @@ const GlobalSchemaSelector: React.FC = () => {
 
   const handleChangeCompatibilityLevel = (level: string | number) => {
     const nextLevel = level as CompatibilityLevelCompatibilityEnum;
+    // 确认更新全局兼容性级别的提示
     confirm(
-      <>
-        Are you sure you want to update the global compatibility level and set
-        it to <b>{nextLevel}</b>? This may affect the compatibility levels of
-        the schemas.
-      </>,
+      t('schema.updateGlobalCompatibilityConfirm', { level: nextLevel }),
       async () => {
         try {
           await schemasApiClient.updateGlobalSchemaCompatibilityLevel({
@@ -82,7 +83,7 @@ const GlobalSchemaSelector: React.FC = () => {
 
   return (
     <S.Wrapper>
-      <div>Global Compatibility Level: </div>
+      <div>{t('schema.globalCompatibilityLevel')}: </div>
       <ActionSelect
         selectSize="M"
         defaultValue={currentCompatibilityLevel}

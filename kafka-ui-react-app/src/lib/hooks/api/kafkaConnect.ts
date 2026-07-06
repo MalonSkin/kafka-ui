@@ -9,6 +9,8 @@ import sortBy from 'lodash/sortBy';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ClusterName } from 'redux/interfaces';
 import { showSuccessAlert } from 'lib/errorHandling';
+// 引入 i18n 用于通知消息国际化
+import i18n from 'i18n/config';
 
 interface UseConnectorProps {
   clusterName: ClusterName;
@@ -103,7 +105,7 @@ export function useUpdateConnectorConfig(props: UseConnectorProps) {
     {
       onSuccess: () => {
         showSuccessAlert({
-          message: `Config successfully updated.`,
+          message: i18n.t('connector.configUpdated'),
         });
         client.invalidateQueries(connectorKey(props));
       },

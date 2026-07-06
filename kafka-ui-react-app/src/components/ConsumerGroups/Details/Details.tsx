@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import useAppParams from 'lib/hooks/useAppParams';
 import {
@@ -29,6 +30,7 @@ import { CONSUMER_GROUP_STATE_TOOLTIPS } from 'lib/constants';
 import ListItem from './ListItem';
 
 const Details: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const searchValue = searchParams.get('q') || '';
@@ -64,7 +66,7 @@ const Details: React.FC = () => {
         <PageHeading
           text={consumerGroupID}
           backTo={clusterConsumerGroupsPath(clusterName)}
-          backText="Consumers"
+          backText={t('common.consumers')}
         >
           {!isReadOnly && (
             <Dropdown>
@@ -77,10 +79,10 @@ const Details: React.FC = () => {
                 }}
                 disabled={!hasAssignedTopics}
               >
-                Reset offset
+                {t('consumerGroup.resetOffsets')}
               </ActionDropdownItem>
               <ActionDropdownItem
-                confirm="Are you sure you want to delete this consumer group?"
+                confirm={t('consumerGroup.deleteConfirm')}
                 onClick={onDelete}
                 danger
                 permission={{
@@ -89,7 +91,7 @@ const Details: React.FC = () => {
                   value: consumerGroupID,
                 }}
               >
-                Delete consumer group
+                {t('consumerGroup.deleteConsumerGroup')}
               </ActionDropdownItem>
             </Dropdown>
           )}
@@ -97,7 +99,7 @@ const Details: React.FC = () => {
       </div>
       <Metrics.Wrapper>
         <Metrics.Section>
-          <Metrics.Indicator label="State">
+          <Metrics.Indicator label={t('common.state')}>
             <Tooltip
               value={
                 <Tag color={getTagColor(consumerGroup.data?.state)}>
@@ -112,31 +114,31 @@ const Details: React.FC = () => {
               placement="bottom-start"
             />
           </Metrics.Indicator>
-          <Metrics.Indicator label="Members">
+          <Metrics.Indicator label={t('consumerGroup.members')}>
             {consumerGroup.data?.members}
           </Metrics.Indicator>
-          <Metrics.Indicator label="Assigned Topics">
+          <Metrics.Indicator label={t('consumerGroup.assignedTopics')}>
             {consumerGroup.data?.topics}
           </Metrics.Indicator>
-          <Metrics.Indicator label="Assigned Partitions">
+          <Metrics.Indicator label={t('consumerGroup.assignedPartitions')}>
             {consumerGroup.data?.partitions?.length}
           </Metrics.Indicator>
-          <Metrics.Indicator label="Coordinator ID">
+          <Metrics.Indicator label={t('consumerGroup.coordinatorId')}>
             {consumerGroup.data?.coordinator?.id}
           </Metrics.Indicator>
-          <Metrics.Indicator label="Total lag">
+          <Metrics.Indicator label={t('consumerGroup.totalLag')}>
             {consumerGroup.data?.consumerLag}
           </Metrics.Indicator>
         </Metrics.Section>
       </Metrics.Wrapper>
       <ControlPanelWrapper hasInput style={{ margin: '16px 0 20px' }}>
-        <Search placeholder="Search by Topic Name" />
+        <Search placeholder={t('consumerGroup.searchByTopicName')} />
       </ControlPanelWrapper>
       <Table isFullwidth>
         <thead>
           <tr>
-            <TableHeaderCell title="Topic" />
-            <TableHeaderCell title="Consumer Lag" />
+            <TableHeaderCell title={t('common.topics')} />
+            <TableHeaderCell title={t('consumerGroup.consumerLag')} />
           </tr>
         </thead>
         <tbody>

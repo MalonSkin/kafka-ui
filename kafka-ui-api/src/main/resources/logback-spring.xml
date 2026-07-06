@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%black(%d{ISO8601}) %highlight(%-5level) [%blue(%t)] %yellow(%c{1}): %msg%n%throwable</pattern>
+            <!-- 纯文本格式，移除所有颜色渲染器，保留日志结构与异常堆栈 -->
+            <pattern>%d{ISO8601} %-5level [%t] %c{1}: %msg%n%throwable</pattern>
+            <charset>UTF-8</charset>
         </encoder>
     </appender>
-
     <root level="info">
         <appender-ref ref="STDOUT"/>
     </root>
-
 </configuration>

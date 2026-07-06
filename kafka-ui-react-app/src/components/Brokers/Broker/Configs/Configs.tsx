@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { ClusterBrokerParam } from 'lib/paths';
 import useAppParams from 'lib/hooks/useAppParams';
@@ -15,15 +16,8 @@ import InfoIcon from 'components/common/Icons/InfoIcon';
 import InputCell from './InputCell';
 import * as S from './Configs.styled';
 
-const tooltipContent = `DYNAMIC_TOPIC_CONFIG = dynamic topic config that is configured for a specific topic
-DYNAMIC_BROKER_LOGGER_CONFIG = dynamic broker logger config that is configured for a specific broker
-DYNAMIC_BROKER_CONFIG = dynamic broker config that is configured for a specific broker
-DYNAMIC_DEFAULT_BROKER_CONFIG = dynamic broker config that is configured as default for all brokers in the cluster
-STATIC_BROKER_CONFIG = static broker config provided as broker properties at start up (e.g. server.properties file)
-DEFAULT_CONFIG = built-in default configuration for configs that have a default value
-UNKNOWN = source unknown e.g. in the ConfigEntry used for alter requests where source is not set`;
-
 const Configs: React.FC = () => {
+  const { t } = useTranslation();
   const [keyword, setKeyword] = React.useState('');
   const { clusterName, brokerId } = useAppParams<ClusterBrokerParam>();
   const { data = [] } = useBrokerConfig(clusterName, Number(brokerId));
@@ -69,9 +63,9 @@ const Configs: React.FC = () => {
 
   const columns = React.useMemo<ColumnDef<BrokerConfig>[]>(
     () => [
-      { header: 'Key', accessorKey: 'name' },
+      { header: t('common.key'), accessorKey: 'name' },
       {
-        header: 'Value',
+        header: t('common.value'),
         accessorKey: 'value',
         cell: renderCell,
       },
@@ -80,10 +74,10 @@ const Configs: React.FC = () => {
         header: () => {
           return (
             <S.Source>
-              Source
+              {t('common.source')}
               <Tooltip
                 value={<InfoIcon />}
-                content={tooltipContent}
+                content={t('broker.configSourceTooltip')}
                 placement="top-end"
               />
             </S.Source>
@@ -92,7 +86,7 @@ const Configs: React.FC = () => {
         accessorKey: 'source',
       },
     ],
-    []
+    [t]
   );
 
   return (
@@ -100,7 +94,7 @@ const Configs: React.FC = () => {
       <S.SearchWrapper>
         <Search
           onChange={setKeyword}
-          placeholder="Search by Key or Value"
+          placeholder={t('broker.searchByKeyOrValue')}
           value={keyword}
         />
       </S.SearchWrapper>

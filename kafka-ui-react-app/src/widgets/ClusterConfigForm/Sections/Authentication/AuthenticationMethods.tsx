@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import Input from 'components/common/Input/Input';
 import Checkbox from 'components/common/Checkbox/Checkbox';
 import Fileupload from 'widgets/ClusterConfigForm/common/Fileupload';
@@ -6,6 +7,8 @@ import SSLForm from 'widgets/ClusterConfigForm/common/SSLForm';
 import Credentials from 'widgets/ClusterConfigForm/common/Credentials';
 
 const AuthenticationMethods: React.FC<{ method: string }> = ({ method }) => {
+  // 引入 i18n 翻译函数
+  const { t } = useTranslation();
   switch (method) {
     case 'SASL/JAAS':
       return (
@@ -28,17 +31,20 @@ const AuthenticationMethods: React.FC<{ method: string }> = ({ method }) => {
       return (
         <>
           <Input
-            label="Kerberos service name"
+            label={t('clusterConfig.kerberosServiceName')}
             type="text"
             name="auth.props.saslKerberosServiceName"
             withError
           />
-          <Checkbox name="auth.props.storeKey" label="Store Key" />
-          <Fileupload name="auth.props.keyTabFile" label="Key Tab (optional)" />
+          <Checkbox name="auth.props.storeKey" label={t('clusterConfig.storeKey')} />
+          <Fileupload
+            name="auth.props.keyTabFile"
+            label={t('clusterConfig.keyTabOptional')}
+          />
           <Input
             type="text"
             name="auth.props.principal"
-            label="Principal *"
+            label={t('clusterConfig.principalRequired')}
             withError
           />
         </>
@@ -46,7 +52,7 @@ const AuthenticationMethods: React.FC<{ method: string }> = ({ method }) => {
     case 'SASL/OAUTHBEARER':
       return (
         <Input
-          label="Unsecured Login String Claim_sub *"
+          label={t('clusterConfig.unsecuredLoginClaimRequired')}
           type="text"
           name="auth.props.unsecuredLoginStringClaim_sub"
           withError
@@ -61,13 +67,13 @@ const AuthenticationMethods: React.FC<{ method: string }> = ({ method }) => {
       return (
         <>
           <Input
-            label="Token Id"
+            label={t('clusterConfig.tokenId')}
             type="text"
             name="auth.props.tokenId"
             withError
           />
           <Input
-            label="Token Value *"
+            label={t('clusterConfig.tokenValueRequired')}
             type="text"
             name="auth.props.tokenValue"
             withError
@@ -77,14 +83,14 @@ const AuthenticationMethods: React.FC<{ method: string }> = ({ method }) => {
     case 'SASL/AWS IAM':
       return (
         <Input
-          label="AWS Profile Name"
+          label={t('clusterConfig.awsProfileName')}
           type="text"
           name="auth.props.awsProfileName"
           withError
         />
       );
     case 'mTLS':
-      return <SSLForm prefix="auth.keystore" title="Keystore" />;
+      return <SSLForm prefix="auth.keystore" title={t('clusterConfig.keystore')} />;
     default:
       return null;
   }

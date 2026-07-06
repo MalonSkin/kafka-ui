@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useIsMutating } from '@tanstack/react-query';
 import {
@@ -25,6 +26,7 @@ import ChevronDownIcon from 'components/common/Icons/ChevronDownIcon';
 import * as S from './Action.styled';
 
 const Actions: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const routerProps = useAppParams<RouterParamsClusterConnectConnector>();
   const mutationsNumber = useIsMutating();
@@ -34,12 +36,12 @@ const Actions: React.FC = () => {
   const confirm = useConfirm();
 
   const deleteConnectorMutation = useDeleteConnector(routerProps);
+  // 确认删除 Connector
   const deleteConnectorHandler = () =>
     confirm(
-      <>
-        Are you sure you want to remove <b>{routerProps.connectorName}</b>{' '}
-        connector?
-      </>,
+      t('connector.deleteConfirm', {
+        connectorName: routerProps.connectorName,
+      }),
       async () => {
         try {
           await deleteConnectorMutation.mutateAsync();
@@ -66,7 +68,7 @@ const Actions: React.FC = () => {
       <Dropdown
         label={
           <S.RestartButton>
-            <S.ButtonLabel>Restart</S.ButtonLabel>
+            <S.ButtonLabel>{t('common.restart')}</S.ButtonLabel>
             <ChevronDownIcon />
           </S.RestartButton>
         }
@@ -81,7 +83,7 @@ const Actions: React.FC = () => {
               value: routerProps.connectorName,
             }}
           >
-            Pause
+            {t('common.pause')}
           </ActionDropdownItem>
         )}
         {connector?.status.state === ConnectorState.PAUSED && (
@@ -94,7 +96,7 @@ const Actions: React.FC = () => {
               value: routerProps.connectorName,
             }}
           >
-            Resume
+            {t('common.resume')}
           </ActionDropdownItem>
         )}
         <ActionDropdownItem
@@ -106,7 +108,7 @@ const Actions: React.FC = () => {
             value: routerProps.connectorName,
           }}
         >
-          Restart Connector
+          {t('connector.restartConnector')}
         </ActionDropdownItem>
         <ActionDropdownItem
           onClick={restartAllTasksHandler}
@@ -117,7 +119,7 @@ const Actions: React.FC = () => {
             value: routerProps.connectorName,
           }}
         >
-          Restart All Tasks
+          {t('connector.restartAllTasks')}
         </ActionDropdownItem>
         <ActionDropdownItem
           onClick={restartFailedTasksHandler}
@@ -128,7 +130,7 @@ const Actions: React.FC = () => {
             value: routerProps.connectorName,
           }}
         >
-          Restart Failed Tasks
+          {t('connector.restartFailedTasks')}
         </ActionDropdownItem>
       </Dropdown>
       <Dropdown>
@@ -142,7 +144,7 @@ const Actions: React.FC = () => {
             value: routerProps.connectorName,
           }}
         >
-          Delete
+          {t('common.delete')}
         </ActionDropdownItem>
       </Dropdown>
     </S.ConnectorActionsWrapperStyled>

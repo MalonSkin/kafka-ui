@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import useAppParams from 'lib/hooks/useAppParams';
 import { Controller, useForm } from 'react-hook-form';
 import { ErrorMessage } from '@hookform/error-message';
@@ -26,6 +27,8 @@ interface FormValues {
 }
 
 const Config: React.FC = () => {
+  // 引入 i18n 翻译函数
+  const { t } = useTranslation();
   const routerParams = useAppParams<RouterParamsClusterConnectConnector>();
   const { data: config } = useConnectorConfig(routerParams);
   const mutation = useUpdateConnectorConfig(routerParams);
@@ -67,11 +70,10 @@ const Config: React.FC = () => {
     <ConnectEditWrapperStyled>
       {hasCredentials && (
         <ConnectEditWarningMessageStyled>
-          Please replace ****** with the real credential values to avoid
-          accidentally breaking your connector config!
+          {t('connector.replaceCredentialsWarning')}
         </ConnectEditWarningMessageStyled>
       )}
-      <form onSubmit={handleSubmit(onSubmit)} aria-label="Edit connect form">
+      <form onSubmit={handleSubmit(onSubmit)} aria-label={t('topic.editConnectForm')}>
         <div>
           <Controller
             control={control}
@@ -90,7 +92,7 @@ const Config: React.FC = () => {
           type="submit"
           disabled={!isValid || isSubmitting || !isDirty}
         >
-          Submit
+          {t('topic.submit')}
         </Button>
       </form>
     </ConnectEditWrapperStyled>

@@ -17,10 +17,13 @@ import {
 import { useConfirm } from 'lib/hooks/useConfirm';
 import { useIsMutating } from '@tanstack/react-query';
 import { ActionDropdownItem } from 'components/common/ActionComponent';
+import { useTranslation } from 'react-i18next';
 
 const ActionsCell: React.FC<CellContext<FullConnectorInfo, unknown>> = ({
   row,
 }) => {
+  // 引入 i18n 翻译函数
+  const { t } = useTranslation();
   const { connect, name, status } = row.original;
   const { clusterName } = useAppParams<ClusterNameRoute>();
   const mutationsNumber = useIsMutating();
@@ -36,11 +39,10 @@ const ActionsCell: React.FC<CellContext<FullConnectorInfo, unknown>> = ({
     connectName: connect,
     connectorName: name,
   });
+  // 确认删除 Connector
   const handleDelete = () => {
     confirm(
-      <>
-        Are you sure want to remove <b>{name}</b> connector?
-      </>,
+      t('connector.deleteConfirm', { connectorName: name }),
       async () => {
         await deleteMutation.mutateAsync();
       }
@@ -70,7 +72,7 @@ const ActionsCell: React.FC<CellContext<FullConnectorInfo, unknown>> = ({
             value: name,
           }}
         >
-          Resume
+          {t('common.resume')}
         </ActionDropdownItem>
       )}
       <ActionDropdownItem
@@ -82,7 +84,7 @@ const ActionsCell: React.FC<CellContext<FullConnectorInfo, unknown>> = ({
           value: name,
         }}
       >
-        Restart Connector
+        {t('connector.restartConnector')}
       </ActionDropdownItem>
       <ActionDropdownItem
         onClick={restartAllTasksHandler}
@@ -93,7 +95,7 @@ const ActionsCell: React.FC<CellContext<FullConnectorInfo, unknown>> = ({
           value: name,
         }}
       >
-        Restart All Tasks
+        {t('connector.restartAllTasks')}
       </ActionDropdownItem>
       <ActionDropdownItem
         onClick={restartFailedTasksHandler}
@@ -104,10 +106,10 @@ const ActionsCell: React.FC<CellContext<FullConnectorInfo, unknown>> = ({
           value: name,
         }}
       >
-        Restart Failed Tasks
+        {t('connector.restartFailedTasks')}
       </ActionDropdownItem>
       <DropdownItem onClick={handleDelete} danger>
-        Remove Connector
+        {t('connector.removeConnector')}
       </DropdownItem>
     </Dropdown>
   );

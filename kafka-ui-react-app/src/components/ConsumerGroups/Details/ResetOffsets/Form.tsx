@@ -25,6 +25,7 @@ import { FlexFieldset, StyledForm } from 'components/common/Form/Form.styled';
 import ControlledSelect from 'components/common/Select/ControlledSelect';
 
 import * as S from './ResetOffsets.styled';
+import { useTranslation } from 'react-i18next';
 
 interface FormProps {
   defaultValues: ConsumerGroupOffsetsReset;
@@ -32,11 +33,19 @@ interface FormProps {
   partitions: ConsumerGroupDetails['partitions'];
 }
 
-const resetTypeOptions = Object.values(ConsumerGroupOffsetsResetType).map(
-  (value) => ({ value, label: value })
-);
-
 const Form: React.FC<FormProps> = ({ defaultValues, partitions, topics }) => {
+  // 引入 i18n 翻译函数
+
+  const { t } = useTranslation();
+  const resetTypeOptions = React.useMemo(
+    () => [
+      { value: ConsumerGroupOffsetsResetType.EARLIEST, label: t('consumerGroup.resetTypeEarliest') },
+      { value: ConsumerGroupOffsetsResetType.LATEST, label: t('consumerGroup.resetTypeLatest') },
+      { value: ConsumerGroupOffsetsResetType.TIMESTAMP, label: t('consumerGroup.resetTypeTimestamp') },
+      { value: ConsumerGroupOffsetsResetType.OFFSET, label: t('consumerGroup.resetTypeOffset') },
+    ],
+    [t]
+  );
   const navigate = useNavigate();
   const routerParams = useAppParams<ClusterGroupParam>();
   const reset = useResetConsumerGroupOffsetsMutation(routerParams);
@@ -70,7 +79,7 @@ const Form: React.FC<FormProps> = ({ defaultValues, partitions, topics }) => {
     partitions
       ?.filter((p) => p.topic === topicValue)
       .map((p) => ({
-        label: `Partition #${p.partition.toString()}`,
+        label: t('topic.partitionNumber', { number: p.partition.toString() }),
         value: p.partition,
       })) || [];
 
@@ -107,18 +116,18 @@ const Form: React.FC<FormProps> = ({ defaultValues, partitions, topics }) => {
         <FlexFieldset>
           <ControlledSelect
             name="topic"
-            label="Topic"
-            placeholder="Select Topic"
+            label={t('consumerGroup.topic')}
+            placeholder={t('consumerGroup.selectTopic')}
             options={topicOptions}
           />
           <ControlledSelect
             name="resetType"
-            label="Reset Type"
-            placeholder="Select Reset Type"
+            label={t('consumerGroup.resetType')}
+            placeholder={t('consumerGroup.selectResetType')}
             options={resetTypeOptions}
           />
           <div>
-            <InputLabel>Partitions</InputLabel>
+            <InputLabel>{t('common.partitions')}</InputLabel>
             <MultiSelect
               options={partitionOptions}
               value={partitionsValue.map((p) => ({
@@ -126,18 +135,19 @@ const Form: React.FC<FormProps> = ({ defaultValues, partitions, topics }) => {
                 label: String(p),
               }))}
               onChange={onSelectedPartitionsChange}
-              labelledBy="Select partitions"
+              labelledBy={t('topic.selectPartitions')}
             />
           </div>
           {resetTypeValue === ConsumerGroupOffsetsResetType.TIMESTAMP &&
             partitionsValue.length > 0 && (
               <div>
-                <InputLabel>Timestamp</InputLabel>
+                <InputLabel>{t('topic.timestamp')}</InputLabel>
                 <Controller
                   control={control}
                   name="resetToTimestamp"
                   rules={{
-                    required: 'Timestamp is required',
+                    // Timestamp 为必填项
+                    required: t('validation.timestampRequired'),
                   }}
                   render={({ field: { onChange, onBlur, value, ref } }) => (
                     <S.DatePickerInput
@@ -162,15 +172,16 @@ const Form: React.FC<FormProps> = ({ defaultValues, partitions, topics }) => {
                 {fields.map((field, index) => (
                   <Input
                     key={field.id}
-                    label={`Partition #${field.partition} Offset`}
+                    label={t('consumerGroup.partitionOffset', { partition: field.partition })}
                     type="number"
                     name={`partitionsOffsets.${index}.offset` as const}
                     hookFormOptions={{
                       shouldUnregister: true,
-                      required: 'Offset is required',
+                      // Offset 为必填项
+                      required: t('validation.offsetRequired'),
                       min: {
                         value: 0,
-                        message: 'must be greater than or equal to 0',
+                        message: t('consumerGroup.offsetGreaterEqual'),
                       },
                     }}
                     withError
@@ -186,7 +197,7 @@ const Form: React.FC<FormProps> = ({ defaultValues, partitions, topics }) => {
             type="submit"
             disabled={partitionsValue.length === 0}
           >
-            Reset Offsets
+            {t('consumerGroup.resetOffsetsButton')}
           </Button>
         </div>
       </StyledForm>

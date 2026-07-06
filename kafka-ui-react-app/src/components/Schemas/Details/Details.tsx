@@ -1,4 +1,5 @@
 import React from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
   ClusterSubjectParam,
@@ -39,6 +40,7 @@ import LatestVersionItem from './LatestVersion/LatestVersionItem';
 import SchemaVersion from './SchemaVersion/SchemaVersion';
 
 const Details: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { isReadOnly } = React.useContext(ClusterContext);
@@ -66,11 +68,11 @@ const Details: React.FC = () => {
 
   const columns = React.useMemo(
     () => [
-      { header: 'Version', accessorKey: 'version' },
-      { header: 'ID', accessorKey: 'id' },
-      { header: 'Type', accessorKey: 'schemaType' },
+      { header: t('schema.version'), accessorKey: 'version' },
+      { header: t('common.id'), accessorKey: 'id' },
+      { header: t('common.type'), accessorKey: 'schemaType' },
     ],
-    []
+    [t]
   );
 
   const deleteHandler = async () => {
@@ -96,7 +98,7 @@ const Details: React.FC = () => {
     <>
       <PageHeading
         text={schema.subject}
-        backText="Schema Registry"
+        backText={t('common.schemaRegistry')}
         backTo={clusterSchemasPath(clusterName)}
       >
         {!isReadOnly && (
@@ -109,7 +111,7 @@ const Details: React.FC = () => {
                 search: `leftVersion=${versions[0]?.version}&rightVersion=${versions[0]?.version}`,
               }}
             >
-              Compare Versions
+              {t('schema.compareVersions')}
             </Button>
             <ActionButton
               buttonSize="M"
@@ -121,14 +123,16 @@ const Details: React.FC = () => {
                 value: subject,
               }}
             >
-              Edit Schema
+              {t('schema.editSchema')}
             </ActionButton>
             <Dropdown>
               <ActionDropdownItem
                 confirm={
-                  <>
-                    Are you sure want to remove <b>{subject}</b> schema?
-                  </>
+                  <Trans
+                    i18nKey="schema.removeSchemaConfirm"
+                    components={{ b: <b /> }}
+                    values={{ subject }}
+                  />
                 }
                 onClick={deleteHandler}
                 danger
@@ -138,14 +142,14 @@ const Details: React.FC = () => {
                   value: subject,
                 }}
               >
-                Remove schema
+                {t('schema.deleteSchema')}
               </ActionDropdownItem>
             </Dropdown>
           </>
         )}
       </PageHeading>
       <LatestVersionItem schema={schema} />
-      <TableTitle>Old versions</TableTitle>
+      <TableTitle>{t('schema.oldVersions')}</TableTitle>
       {areVersionsFetched ? (
         <Table
           columns={columns}

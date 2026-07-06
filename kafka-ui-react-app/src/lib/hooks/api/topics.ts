@@ -21,6 +21,8 @@ import {
   TopicUpdate,
 } from 'generated-sources';
 import { showServerError, showSuccessAlert } from 'lib/errorHandling';
+// 引入 i18n 用于通知消息国际化
+import i18n from 'i18n/config';
 
 export const topicKeys = {
   all: (clusterName: ClusterName) =>
@@ -172,7 +174,7 @@ export function useUpdateTopic(props: GetTopicDetailsRequest) {
     {
       onSuccess: () => {
         showSuccessAlert({
-          message: `Topic successfully updated.`,
+          message: i18n.t('topic.topicUpdated'),
         });
         client.invalidateQueries(topicKeys.all(props.clusterName));
       },
@@ -190,7 +192,7 @@ export function useIncreaseTopicPartitionsCount(props: GetTopicDetailsRequest) {
     {
       onSuccess: () => {
         showSuccessAlert({
-          message: `Number of partitions successfully increased`,
+          message: i18n.t('topic.partitionsIncreased'),
         });
         client.invalidateQueries(topicKeys.all(props.clusterName));
       },
@@ -208,7 +210,7 @@ export function useUpdateTopicReplicationFactor(props: GetTopicDetailsRequest) {
     {
       onSuccess: () => {
         showSuccessAlert({
-          message: `Replication factor successfully updated`,
+          message: i18n.t('topic.replicationFactorUpdated'),
         });
         client.invalidateQueries(topicKeys.all(props.clusterName));
       },
@@ -222,7 +224,7 @@ export function useDeleteTopic(clusterName: ClusterName) {
     {
       onSuccess: (_, topicName) => {
         showSuccessAlert({
-          message: `Topic ${topicName} successfully deleted!`,
+          message: i18n.t('topic.topicDeleted', { topicName }),
         });
         client.invalidateQueries(topicKeys.all(clusterName));
       },
@@ -249,7 +251,7 @@ export function useClearTopicMessages(
       onSuccess: (topicName) => {
         showSuccessAlert({
           id: `message-${topicName}-${clusterName}-${partitions}`,
-          message: `${topicName} messages have been successfully cleared!`,
+          message: i18n.t('topic.messagesCleared', { topicName }),
         });
         client.invalidateQueries(topicKeys.all(clusterName));
       },
@@ -262,7 +264,7 @@ export function useRecreateTopic(props: GetTopicDetailsRequest) {
   return useMutation(() => api.recreateTopic(props), {
     onSuccess: () => {
       showSuccessAlert({
-        message: `Topic ${props.topicName} successfully recreated!`,
+        message: i18n.t('topic.topicRecreated', { topicName: props.topicName }),
       });
       client.invalidateQueries(topicKeys.all(props.clusterName));
     },
@@ -277,7 +279,7 @@ export function useSendMessage(props: GetTopicDetailsRequest) {
     {
       onSuccess: () => {
         showSuccessAlert({
-          message: `Message successfully sent`,
+          message: i18n.t('topic.messageSent'),
         });
         client.invalidateQueries(topicKeys.all(props.clusterName));
       },
@@ -323,7 +325,7 @@ export function useCancelTopicAnalysis(props: GetTopicDetailsRequest) {
   return useMutation(() => api.cancelTopicAnalysis(props), {
     onSuccess: () => {
       showSuccessAlert({
-        message: `Topic analysis canceled`,
+        message: i18n.t('topic.analysisCanceled'),
       });
       client.invalidateQueries(topicKeys.statistics(props));
     },

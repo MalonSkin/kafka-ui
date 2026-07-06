@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import useAppParams from 'lib/hooks/useAppParams';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
@@ -35,6 +36,7 @@ interface FormValues {
 }
 
 const New: React.FC = () => {
+  const { t } = useTranslation();
   const { clusterName } = useAppParams<ClusterNameRoute>();
   const navigate = useNavigate();
 
@@ -96,16 +98,16 @@ const New: React.FC = () => {
   return (
     <FormProvider {...methods}>
       <PageHeading
-        text="Create new connector"
+        text={t('connector.createConnector')}
         backTo={clusterConnectorsPath(clusterName)}
-        backText="Connectors"
+        backText={t('connector.connectors')}
       />
       <S.NewConnectFormStyled
         onSubmit={handleSubmit(onSubmit)}
-        aria-label="Create connect form"
+        aria-label={t('connector.createConnector')}
       >
         <S.Filed $hidden={connects?.length <= 1}>
-          <Heading level={3}>Connect *</Heading>
+          <Heading level={3}>{t('common.kafkaConnect')} *</Heading>
           <Controller
             defaultValue={connectOptions[0]?.value}
             control={control}
@@ -128,10 +130,10 @@ const New: React.FC = () => {
         </S.Filed>
 
         <div>
-          <Heading level={3}>Name</Heading>
+          <Heading level={3}>{t('common.name')}</Heading>
           <Input
             inputSize="M"
-            placeholder="Connector Name"
+            placeholder={t('connector.name')}
             name="name"
             autoFocus
             autoComplete="off"
@@ -143,7 +145,7 @@ const New: React.FC = () => {
         </div>
 
         <div>
-          <Heading level={3}>Config</Heading>
+          <Heading level={3}>{t('common.config')}</Heading>
           <Controller
             control={control}
             name="config"
@@ -161,7 +163,7 @@ const New: React.FC = () => {
           type="submit"
           disabled={!isValid || isSubmitting || !isDirty}
         >
-          Submit
+          {t('common.submit')}
         </Button>
       </S.NewConnectFormStyled>
     </FormProvider>

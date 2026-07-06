@@ -11,9 +11,11 @@ import {
   useRecreateTopic,
 } from 'lib/hooks/api/topics';
 import { ActionDropdownItem } from 'components/common/ActionComponent';
+import { Trans, useTranslation } from 'react-i18next';
 
 const ActionsCell: React.FC<CellContext<Topic, unknown>> = ({ row }) => {
   const { name, internal, cleanUpPolicy } = row.original;
+  const { t } = useTranslation();
 
   const { isReadOnly, isTopicDeletionAllowed } =
     React.useContext(ClusterContext);
@@ -36,7 +38,7 @@ const ActionsCell: React.FC<CellContext<Topic, unknown>> = ({ row }) => {
       <ActionDropdownItem
         disabled={isCleanupDisabled}
         onClick={clearTopicMessagesHandler}
-        confirm="Are you sure want to clear topic messages?"
+        confirm={t('topic.clearMessagesConfirm')}
         danger
         permission={{
           resource: ResourceType.TOPIC,
@@ -44,20 +46,20 @@ const ActionsCell: React.FC<CellContext<Topic, unknown>> = ({ row }) => {
           value: name,
         }}
       >
-        Clear Messages
+        {t('topic.clearMessages')}
         <DropdownItemHint>
-          Clearing messages is only allowed for topics
-          <br />
-          with DELETE policy
+          {t('topic.clearMessagesNotAllowed')}
         </DropdownItemHint>
       </ActionDropdownItem>
       <ActionDropdownItem
         disabled={!isTopicDeletionAllowed}
         onClick={recreateTopic.mutateAsync}
         confirm={
-          <>
-            Are you sure to recreate <b>{name}</b> topic?
-          </>
+          <Trans
+            i18nKey="topic.recreateTopicConfirm"
+            components={{ b: <b /> }}
+            values={{ topicName: name }}
+          />
         }
         danger
         permission={{
@@ -66,15 +68,17 @@ const ActionsCell: React.FC<CellContext<Topic, unknown>> = ({ row }) => {
           value: name,
         }}
       >
-        Recreate Topic
+        {t('topic.recreateTopic')}
       </ActionDropdownItem>
       <ActionDropdownItem
         disabled={!isTopicDeletionAllowed}
         onClick={() => deleteTopic.mutateAsync(name)}
         confirm={
-          <>
-            Are you sure want to remove <b>{name}</b> topic?
-          </>
+          <Trans
+            i18nKey="topic.removeTopicConfirm"
+            components={{ b: <b /> }}
+            values={{ topicName: name }}
+          />
         }
         danger
         permission={{
@@ -83,12 +87,10 @@ const ActionsCell: React.FC<CellContext<Topic, unknown>> = ({ row }) => {
           value: name,
         }}
       >
-        Remove Topic
+        {t('topic.deleteTopic')}
         {!isTopicDeletionAllowed && (
           <DropdownItemHint>
-            The topic deletion is restricted at the broker
-            <br />
-            configuration level (delete.topic.enable = false)
+            {t('topic.removeTopicRestricted')}
           </DropdownItemHint>
         )}
       </ActionDropdownItem>

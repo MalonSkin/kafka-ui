@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { TopicAnalysisStats } from 'generated-sources';
 import { ColumnDef } from '@tanstack/react-table';
 import Table from 'components/common/NewTable';
@@ -6,23 +7,25 @@ import Table from 'components/common/NewTable';
 import PartitionInfoRow from './PartitionInfoRow';
 
 const PartitionTable: React.FC<{ data: TopicAnalysisStats[] }> = ({ data }) => {
+  // 引入 i18n 翻译函数
+  const { t } = useTranslation();
   const columns = React.useMemo<ColumnDef<TopicAnalysisStats>[]>(
     () => [
       {
-        header: 'Partition ID',
+        header: t('topic.partitionId'),
         accessorKey: 'partition',
       },
       {
-        header: 'Total Messages',
+        header: t('topic.totalMessage'),
         accessorKey: 'totalMsgs',
       },
       {
-        header: 'Min Offset',
+        header: t('topic.minOffset'),
         accessorKey: 'minOffset',
       },
-      { header: 'Max Offset', accessorKey: 'maxOffset' },
+      { header: t('topic.maxOffset'), accessorKey: 'maxOffset' },
     ],
-    []
+    [t]
   );
 
   return (

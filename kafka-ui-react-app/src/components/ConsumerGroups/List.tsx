@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import PageHeading from 'components/common/PageHeading/PageHeading';
 import Search from 'components/common/Search/Search';
 import { ControlPanelWrapper } from 'components/common/ControlPanel/ControlPanel.styled';
@@ -18,6 +19,7 @@ import { useConsumerGroups } from 'lib/hooks/api/consumers';
 import Tooltip from 'components/common/Tooltip/Tooltip';
 
 const List = () => {
+  const { t } = useTranslation();
   const { clusterName } = useAppParams<ClusterNameRoute>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -37,7 +39,7 @@ const List = () => {
     () => [
       {
         id: ConsumerGroupOrdering.NAME,
-        header: 'Group ID',
+        header: t('consumerGroup.groupId'),
         accessorKey: 'groupId',
         // eslint-disable-next-line react/no-unstable-nested-components
         cell: ({ getValue }) => (
@@ -49,30 +51,30 @@ const List = () => {
       },
       {
         id: ConsumerGroupOrdering.MEMBERS,
-        header: 'Num Of Members',
+        header: t('consumerGroup.members'),
         accessorKey: 'members',
       },
       {
         id: ConsumerGroupOrdering.TOPIC_NUM,
-        header: 'Num Of Topics',
+        header: t('consumerGroup.topics'),
         accessorKey: 'topics',
       },
       {
         id: ConsumerGroupOrdering.MESSAGES_BEHIND,
-        header: 'Consumer Lag',
+        header: t('consumerGroup.consumerLag'),
         accessorKey: 'consumerLag',
         cell: (args) => {
-          return args.getValue() || 'N/A';
+          return args.getValue() || t('common.notAvailable');
         },
       },
       {
-        header: 'Coordinator',
+        header: t('consumerGroup.coordinator'),
         accessorKey: 'coordinator.id',
         enableSorting: false,
       },
       {
         id: ConsumerGroupOrdering.STATE,
-        header: 'State',
+        header: t('common.state'),
         accessorKey: 'state',
         // eslint-disable-next-line react/no-unstable-nested-components
         cell: (args) => {
@@ -87,14 +89,14 @@ const List = () => {
         },
       },
     ],
-    []
+    [t]
   );
 
   return (
     <>
-      <PageHeading text="Consumers" />
+      <PageHeading text={t('common.consumers')} />
       <ControlPanelWrapper hasInput>
-        <Search placeholder="Search by Consumer Group ID" />
+        <Search placeholder={t('consumerGroup.searchByConsumerGroupID')} />
       </ControlPanelWrapper>
       <Table
         columns={columns}
@@ -102,8 +104,8 @@ const List = () => {
         data={consumerGroups.data?.consumerGroups || []}
         emptyMessage={
           consumerGroups.isSuccess
-            ? 'No active consumer groups found'
-            : 'Loading...'
+            ? t('consumerGroup.noConsumerGroupsFound')
+            : t('common.loading')
         }
         serverSideProcessing
         enableSorting

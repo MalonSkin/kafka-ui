@@ -1,4 +1,5 @@
 import { showAlert, showSuccessAlert } from 'lib/errorHandling';
+import i18n from 'i18n/config';
 
 const useDataSaver = (
   subject: string,
@@ -12,14 +13,14 @@ const useDataSaver = (
       showSuccessAlert({
         id: subject,
         title: '',
-        message: 'Copied successfully!',
+        message: i18n.t('common.copySuccess'),
       });
     } else {
       showAlert('warning', {
         id: subject,
-        title: 'Warning',
+        title: i18n.t('common.warning'),
         message:
-          'Copying to clipboard is unavailable due to unsecured (non-HTTPS) connection',
+          i18n.t('common.clipboardUnavailable'),
       });
     }
   };

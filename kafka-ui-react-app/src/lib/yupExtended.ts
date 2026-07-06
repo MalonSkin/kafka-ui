@@ -1,6 +1,7 @@
 import * as yup from 'yup';
 
 import { TOPIC_NAME_VALIDATION_PATTERN } from './constants';
+import i18n from 'i18n/config';
 
 declare module 'yup' {
   interface StringSchema<
@@ -35,7 +36,7 @@ const isJsonObject = (message?: string) => {
   return yup.string().test(
     'isJsonObject',
     // eslint-disable-next-line no-template-curly-in-string
-    message || '${path} is not JSON object',
+    message || i18n.t('validation.isNotJsonObject'),
     isValidJsonObject
   );
 };
@@ -66,17 +67,17 @@ export const topicFormValidationSchema = yup.object().shape({
   name: yup
     .string()
     .max(249)
-    .required('Topic Name is required')
+    .required(i18n.t('validation.topicNameRequired'))
     .matches(
       TOPIC_NAME_VALIDATION_PATTERN,
-      'Only alphanumeric, _, -, and . allowed'
+      i18n.t('validation.topicNamePatternInvalid')
     ),
   partitions: yup
     .number()
-    .min(1, 'Number of Partitions must be greater than or equal to 1')
+    .min(1, i18n.t('validation.partitionsMin'))
     .max(2147483647)
     .required()
-    .typeError('Number of Partitions is required and must be a number'),
+    .typeError(i18n.t('validation.partitionsRequiredNumber')),
   replicationFactor: yup.string(),
   minInSyncReplicas: yup.string(),
   cleanupPolicy: yup.string().required(),
@@ -85,8 +86,8 @@ export const topicFormValidationSchema = yup.object().shape({
   maxMessageBytes: yup.string(),
   customParams: yup.array().of(
     yup.object().shape({
-      name: yup.string().required('Custom parameter is required'),
-      value: yup.string().required('Value is required'),
+      name: yup.string().required(i18n.t('validation.customParamRequired')),
+      value: yup.string().required(i18n.t('validation.valueRequired')),
     })
   ),
 });

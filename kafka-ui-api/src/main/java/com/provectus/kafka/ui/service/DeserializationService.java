@@ -29,11 +29,11 @@ import org.springframework.stereotype.Component;
 public class DeserializationService implements Closeable {
 
   private final Map<String, ClusterSerdes> clusterSerdes = new ConcurrentHashMap<>();
+  private final SerdesInitializer serdesInitializer = new SerdesInitializer();
 
   public DeserializationService(Environment env,
                                 ClustersStorage clustersStorage,
                                 ClustersProperties clustersProperties) {
-    var serdesInitializer = new SerdesInitializer();
     for (int i = 0; i < clustersProperties.getClusters().size(); i++) {
       var clusterProperties = clustersProperties.getClusters().get(i);
       var cluster = clustersStorage.getClusterByName(clusterProperties.getName()).get();
@@ -42,7 +42,7 @@ public class DeserializationService implements Closeable {
   }
 
   private ClusterSerdes getSerdesFor(KafkaCluster cluster) {
-    return clusterSerdes.get(cluster.getName());
+    return clusterSerdes.computeIfAbsent(cluster.getName(), name -> serdesInitializer.createDefault());
   }
 
   private Serde.Serializer getSerializer(KafkaCluster cluster,

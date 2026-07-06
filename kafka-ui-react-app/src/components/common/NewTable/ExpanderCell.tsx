@@ -1,9 +1,12 @@
 import { CellContext } from '@tanstack/react-table';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 import * as S from './Table.styled';
 
 const ExpanderCell: React.FC<CellContext<unknown, unknown>> = ({ row }) => {
+  // i18n: 获取国际化翻译函数
+  const { t } = useTranslation();
   return (
     <S.ExpaderButton
       width="16"
@@ -12,7 +15,7 @@ const ExpanderCell: React.FC<CellContext<unknown, unknown>> = ({ row }) => {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       role="button"
-      aria-label="Expand row"
+      aria-label={t('common.expandRow')}
       $disabled={!row.getCanExpand()}
       getIsExpanded={row.getIsExpanded()}
     >

@@ -8,6 +8,7 @@ import { Action, BrokerConfig, ResourceType } from 'generated-sources';
 import { Button } from 'components/common/Button/Button';
 import Input from 'components/common/Input/Input';
 import { ActionButton } from 'components/common/ActionComponent';
+import { useTranslation } from 'react-i18next';
 
 import * as S from './Configs.styled';
 
@@ -16,6 +17,8 @@ interface InputCellProps extends CellContext<BrokerConfig, unknown> {
 }
 
 const InputCell: React.FC<InputCellProps> = ({ row, getValue, onUpdate }) => {
+  // 引入 i18n 翻译函数
+  const { t } = useTranslation();
   const initialValue = `${getValue<string | number>()}`;
   const [isEdit, setIsEdit] = React.useState(false);
   const [value, setValue] = React.useState(initialValue);
@@ -24,7 +27,8 @@ const InputCell: React.FC<InputCellProps> = ({ row, getValue, onUpdate }) => {
 
   const onSave = () => {
     if (value !== initialValue) {
-      confirm('Are you sure you want to change the value?', async () => {
+      // 确认修改配置值的提示
+      confirm(t('broker.changeValueConfirm'), async () => {
         onUpdate(row?.original?.name, value);
       });
     }
@@ -41,25 +45,25 @@ const InputCell: React.FC<InputCellProps> = ({ row, getValue, onUpdate }) => {
         type="text"
         inputSize="S"
         value={value}
-        aria-label="inputValue"
+        aria-label={t('common.edit')}
         onChange={({ target }) => setValue(target?.value)}
       />
       <S.ButtonsWrapper>
         <Button
           buttonType="primary"
           buttonSize="S"
-          aria-label="confirmAction"
+          aria-label={t('common.confirm')}
           onClick={onSave}
         >
-          <CheckmarkIcon /> Save
+          <CheckmarkIcon /> {t('common.save')}
         </Button>
         <Button
           buttonType="primary"
           buttonSize="S"
-          aria-label="cancelAction"
+          aria-label={t('common.cancel')}
           onClick={() => setIsEdit(false)}
         >
-          <CancelIcon /> Cancel
+          <CancelIcon /> {t('common.cancel')}
         </Button>
       </S.ButtonsWrapper>
     </S.ValueWrapper>
@@ -75,14 +79,14 @@ const InputCell: React.FC<InputCellProps> = ({ row, getValue, onUpdate }) => {
       <ActionButton
         buttonType="primary"
         buttonSize="S"
-        aria-label="editAction"
+        aria-label={t('common.edit')}
         onClick={() => setIsEdit(true)}
         permission={{
           resource: ResourceType.CLUSTERCONFIG,
           action: Action.EDIT,
         }}
       >
-        <EditIcon /> Edit
+        <EditIcon /> {t('common.edit')}
       </ActionButton>
     </S.ValueWrapper>
   );

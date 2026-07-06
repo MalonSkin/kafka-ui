@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDebouncedCallback } from 'use-debounce';
 import Input from 'components/common/Input/Input';
 import { useSearchParams } from 'react-router-dom';
@@ -23,11 +24,13 @@ const IconButtonWrapper = styled.span.attrs(() => ({
   }
 `;
 const Search: React.FC<SearchProps> = ({
-  placeholder = 'Search',
+  placeholder,
   disabled = false,
   value,
   onChange,
 }) => {
+  // i18n: 获取国际化翻译函数，默认 placeholder 使用 common.search
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const ref = useRef<HTMLInputElement>(null);
   const handleChange = useDebouncedCallback((e) => {
@@ -57,7 +60,7 @@ const Search: React.FC<SearchProps> = ({
   return (
     <Input
       type="text"
-      placeholder={placeholder}
+      placeholder={placeholder || t('common.search')}
       onChange={handleChange}
       defaultValue={value || searchParams.get('q') || ''}
       inputSize="M"

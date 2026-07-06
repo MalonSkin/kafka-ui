@@ -4,6 +4,7 @@ import { FilterEdit } from 'components/Topics/Topic/Messages/Filters/FilterModal
 
 import AddEditFilterContainer from './AddEditFilterContainer';
 import * as S from './Filters.styled';
+import { useTranslation } from 'react-i18next';
 
 export interface EditFilterProps {
   editFilter: FilterEdit;
@@ -16,16 +17,18 @@ const EditFilter: React.FC<EditFilterProps> = ({
   toggleEditModal,
   editSavedFilter,
 }) => {
+  // 引入 i18n 翻译函数
+  const { t } = useTranslation();
   const onSubmit = (values: MessageFilters) => {
     editSavedFilter({ index: editFilter.index, filter: values });
     toggleEditModal();
   };
   return (
     <>
-      <S.FilterTitle>Edit filter</S.FilterTitle>
+      <S.FilterTitle>{t('topic.editFilter')}</S.FilterTitle>
       <AddEditFilterContainer
         cancelBtnHandler={() => toggleEditModal()}
-        submitBtnText="Save"
+        submitBtnText={t('common.save')}
         inputDisplayNameDefaultValue={editFilter.filter.name}
         inputCodeDefaultValue={editFilter.filter.code}
         submitCallback={onSubmit}

@@ -39,8 +39,12 @@ import TopicConsumerGroups from './ConsumerGroups/TopicConsumerGroups';
 import Statistics from './Statistics/Statistics';
 import Edit from './Edit/Edit';
 import SendMessage from './SendMessage/SendMessage';
+import { Trans, useTranslation } from 'react-i18next';
 
 const Topic: React.FC = () => {
+  // 引入 i18n 翻译函数
+
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const {
     value: isSidebarOpen,
@@ -76,7 +80,7 @@ const Topic: React.FC = () => {
     <>
       <PageHeading
         text={topicName}
-        backText="Topics"
+        backText={t('common.topics')}
         backTo={clusterTopicsPath(clusterName)}
       >
         <ActionButton
@@ -90,7 +94,7 @@ const Topic: React.FC = () => {
             value: topicName,
           }}
         >
-          Produce Message
+          {t('topic.produceMessageButton')}
         </ActionButton>
         <Dropdown disabled={isReadOnly || data?.internal}>
           <ActionDropdownItem
@@ -101,17 +105,15 @@ const Topic: React.FC = () => {
               value: topicName,
             }}
           >
-            Edit settings
+            {t('topic.editSettings')}
             <DropdownItemHint>
-              Pay attention! This operation has
-              <br />
-              especially important consequences.
+              {t('topic.editSettingsWarning')}
             </DropdownItemHint>
           </ActionDropdownItem>
 
           <ActionDropdownItem
             onClick={clearTopicMessagesHandler}
-            confirm="Are you sure want to clear topic messages?"
+            confirm={t('topic.clearMessagesConfirm')}
             disabled={!canCleanup}
             danger
             permission={{
@@ -120,20 +122,20 @@ const Topic: React.FC = () => {
               value: topicName,
             }}
           >
-            Clear messages
+            {t('topic.clearMessages')}
             <DropdownItemHint>
-              Clearing messages is only allowed for topics
-              <br />
-              with DELETE policy
+              {t('topic.clearMessagesNotAllowed')}
             </DropdownItemHint>
           </ActionDropdownItem>
 
           <ActionDropdownItem
             onClick={recreateTopic.mutateAsync}
             confirm={
-              <>
-                Are you sure want to recreate <b>{topicName}</b> topic?
-              </>
+              <Trans
+                i18nKey="topic.recreateTopicConfirm"
+                components={{ b: <b /> }}
+                values={{ topicName }}
+              />
             }
             danger
             permission={{
@@ -142,14 +144,16 @@ const Topic: React.FC = () => {
               value: topicName,
             }}
           >
-            Recreate Topic
+            {t('topic.recreateTopic')}
           </ActionDropdownItem>
           <ActionDropdownItem
             onClick={deleteTopicHandler}
             confirm={
-              <>
-                Are you sure want to remove <b>{topicName}</b> topic?
-              </>
+              <Trans
+                i18nKey="topic.removeTopicConfirm"
+                components={{ b: <b /> }}
+                values={{ topicName }}
+              />
             }
             disabled={!isTopicDeletionAllowed}
             danger
@@ -159,12 +163,10 @@ const Topic: React.FC = () => {
               value: topicName,
             }}
           >
-            Remove Topic
+            {t('topic.deleteTopic')}
             {!isTopicDeletionAllowed && (
               <DropdownItemHint>
-                The topic deletion is restricted at the broker
-                <br />
-                configuration level (delete.topic.enable = false)
+                {t('topic.removeTopicRestricted')}
               </DropdownItemHint>
             )}
           </ActionDropdownItem>
@@ -176,7 +178,7 @@ const Topic: React.FC = () => {
           className={({ isActive }) => (isActive ? 'is-active' : '')}
           end
         >
-          Overview
+          {t('topic.tabOverview')}
         </NavLink>
         <ActionNavLink
           to={clusterTopicMessagesRelativePath}
@@ -187,25 +189,25 @@ const Topic: React.FC = () => {
             value: topicName,
           }}
         >
-          Messages
+          {t('topic.messages')}
         </ActionNavLink>
         <NavLink
           to={clusterTopicConsumerGroupsRelativePath}
           className={({ isActive }) => (isActive ? 'is-active' : '')}
         >
-          Consumers
+          {t('common.consumers')}
         </NavLink>
         <NavLink
           to={clusterTopicSettingsRelativePath}
           className={({ isActive }) => (isActive ? 'is-active' : '')}
         >
-          Settings
+          {t('common.settings')}
         </NavLink>
         <NavLink
           to={clusterTopicStatisticsRelativePath}
           className={({ isActive }) => (isActive ? 'is-active' : '')}
         >
-          Statistics
+          {t('topic.tabStatistics')}
         </NavLink>
       </Navbar>
       <Suspense fallback={<PageLoader />}>
@@ -233,7 +235,7 @@ const Topic: React.FC = () => {
       <SlidingSidebar
         open={isSidebarOpen}
         onClose={closeSidebar}
-        title="Produce Message"
+        title={t('topic.produceMessage')}
       >
         <Suspense fallback={<PageLoader />}>
           <SendMessage closeSidebar={closeSidebar} />

@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 import Select from 'components/common/Select/Select';
 import Logo from 'components/common/Logo/Logo';
 import Version from 'components/Version/Version';
@@ -10,6 +11,8 @@ import MoonIcon from 'components/common/Icons/MoonIcon';
 import { ThemeModeContext } from 'components/contexts/ThemeModeContext';
 
 import UserInfo from './UserInfo/UserInfo';
+// 语言切换组件
+import LanguageSwitcher from './LanguageSwitcher/LanguageSwitcher';
 import * as S from './NavBar.styled';
 
 interface Props {
@@ -18,41 +21,43 @@ interface Props {
 
 export type ThemeDropDownValue = 'auto_theme' | 'light_theme' | 'dark_theme';
 
-const options = [
-  {
-    label: (
-      <>
-        <AutoIcon />
-        <div>Auto theme</div>
-      </>
-    ),
-    value: 'auto_theme',
-  },
-  {
-    label: (
-      <>
-        <SunIcon />
-        <div>Light theme</div>
-      </>
-    ),
-    value: 'light_theme',
-  },
-  {
-    label: (
-      <>
-        <MoonIcon />
-        <div>Dark theme</div>
-      </>
-    ),
-    value: 'dark_theme',
-  },
-];
-
 const NavBar: React.FC<Props> = ({ onBurgerClick }) => {
+  const { t } = useTranslation();
   const { themeMode, setThemeMode } = useContext(ThemeModeContext);
 
+  // 主题切换下拉选项，使用 i18n 翻译标签
+  const options = [
+    {
+      label: (
+        <>
+          <AutoIcon />
+          <div>{t('navBar.autoTheme')}</div>
+        </>
+      ),
+      value: 'auto_theme',
+    },
+    {
+      label: (
+        <>
+          <SunIcon />
+          <div>{t('navBar.lightTheme')}</div>
+        </>
+      ),
+      value: 'light_theme',
+    },
+    {
+      label: (
+        <>
+          <MoonIcon />
+          <div>{t('navBar.darkTheme')}</div>
+        </>
+      ),
+      value: 'dark_theme',
+    },
+  ];
+
   return (
-    <S.Navbar role="navigation" aria-label="Page Header">
+    <S.Navbar role="navigation" aria-label={t('navBar.pageHeader')}>
       <S.NavbarBrand>
         <S.NavbarBrand>
           <S.NavbarBurger
@@ -60,7 +65,7 @@ const NavBar: React.FC<Props> = ({ onBurgerClick }) => {
             onKeyDown={onBurgerClick}
             role="button"
             tabIndex={0}
-            aria-label="burger"
+            aria-label={t('navBar.burgerMenu')} // 汉化无障碍标签
           >
             <S.Span role="separator" />
             <S.Span role="separator" />
@@ -69,7 +74,7 @@ const NavBar: React.FC<Props> = ({ onBurgerClick }) => {
 
           <S.Hyperlink to="/">
             <Logo />
-            UI for Apache Kafka
+            {t('navBar.appName')}
           </S.Hyperlink>
 
           <S.NavbarItem>
@@ -84,6 +89,8 @@ const NavBar: React.FC<Props> = ({ onBurgerClick }) => {
           onChange={setThemeMode}
           isThemeMode
         />
+        {/* 语言切换组件 */}
+        <LanguageSwitcher />
         <S.SocialLink
           href="https://github.com/MalonSkin/kafka-ui"
           target="_blank"

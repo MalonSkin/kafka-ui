@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ClusterNameRoute,
   clusterSchemaNewRelativePath,
@@ -29,6 +30,7 @@ import { PER_PAGE } from 'lib/constants';
 import GlobalSchemaSelector from './GlobalSchemaSelector/GlobalSchemaSelector';
 
 const List: React.FC = () => {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { isReadOnly } = React.useContext(ClusterContext);
   const { clusterName } = useAppParams<ClusterNameRoute>();
@@ -55,7 +57,7 @@ const List: React.FC = () => {
   const columns = React.useMemo<ColumnDef<SchemaSubject>[]>(
     () => [
       {
-        header: 'Subject',
+        header: t('schema.subject'),
         accessorKey: 'subject',
         // eslint-disable-next-line react/no-unstable-nested-components
         cell: ({ getValue }) => (
@@ -65,17 +67,17 @@ const List: React.FC = () => {
           />
         ),
       },
-      { header: 'Id', accessorKey: 'id' },
-      { header: 'Type', accessorKey: 'schemaType' },
-      { header: 'Version', accessorKey: 'version' },
-      { header: 'Compatibility', accessorKey: 'compatibilityLevel' },
+      { header: t('common.id'), accessorKey: 'id' },
+      { header: t('common.type'), accessorKey: 'schemaType' },
+      { header: t('schema.version'), accessorKey: 'version' },
+      { header: t('schema.compatibility'), accessorKey: 'compatibilityLevel' },
     ],
-    []
+    [t]
   );
 
   return (
     <>
-      <PageHeading text="Schema Registry">
+      <PageHeading text={t('common.schemaRegistry')}>
         {!isReadOnly && (
           <>
             <GlobalSchemaSelector />
@@ -88,20 +90,20 @@ const List: React.FC = () => {
                 action: Action.CREATE,
               }}
             >
-              <PlusIcon /> Create Schema
+              <PlusIcon /> {t('schema.createSchema')}
             </ActionButton>
           </>
         )}
       </PageHeading>
       <ControlPanelWrapper hasInput>
-        <Search placeholder="Search by Schema Name" />
+        <Search placeholder={t('schema.searchBySchemaName')} />
       </ControlPanelWrapper>
       {isFetched ? (
         <Table
           columns={columns}
           data={schemas}
           pageCount={totalPages}
-          emptyMessage="No schemas found"
+          emptyMessage={t('schema.noSchemasFound')}
           onRowClick={(row) =>
             navigate(clusterSchemaPath(clusterName, row.original.subject))
           }

@@ -1,6 +1,7 @@
 import React, { PropsWithChildren } from 'react';
 import Heading from 'components/common/heading/Heading.styled';
 import { Button } from 'components/common/Button/Button';
+import { useTranslation } from 'react-i18next';
 
 import * as S from './SlidingSidebar.styled';
 
@@ -16,12 +17,13 @@ const SlidingSidebar: React.FC<SlidingSidebarProps> = ({
   children,
   onClose,
 }) => {
+  const { t } = useTranslation();
   return (
     <S.Wrapper $open={open}>
       <Heading level={3}>
         <span>{title}</span>
         <Button buttonSize="M" buttonType="primary" onClick={onClose}>
-          Close
+          {t('common.close')}
         </Button>
       </Heading>
       <S.Content>{children}</S.Content>

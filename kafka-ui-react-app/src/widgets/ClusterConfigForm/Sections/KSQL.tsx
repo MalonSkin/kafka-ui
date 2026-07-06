@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import Input from 'components/common/Input/Input';
 import { useFormContext } from 'react-hook-form';
 import SectionHeader from 'widgets/ClusterConfigForm/common/SectionHeader';
@@ -6,6 +7,8 @@ import SSLForm from 'widgets/ClusterConfigForm/common/SSLForm';
 import Credentials from 'widgets/ClusterConfigForm/common/Credentials';
 
 const KSQL = () => {
+  // 引入 i18n 翻译函数
+  const { t } = useTranslation();
   const { setValue, watch } = useFormContext();
   const ksql = watch('ksql');
   const toggleConfig = () => {
@@ -18,22 +21,22 @@ const KSQL = () => {
   return (
     <>
       <SectionHeader
-        title="KSQL DB"
+        title={t('clusterConfig.ksqlDb')}
         adding={!ksql}
-        addButtonText="Configure KSQL DB"
+        addButtonText={t('clusterConfig.configureKsqlDb')}
         onClick={toggleConfig}
       />
       {ksql && (
         <>
           <Input
-            label="URL *"
+            label={t('clusterConfig.urlRequired')}
             name="ksql.url"
             type="text"
             placeholder="http://localhost:8088"
             withError
           />
-          <Credentials prefix="ksql" title="Is KSQL DB secured with auth?" />
-          <SSLForm prefix="ksql.keystore" title="KSQL DB Keystore" />
+          <Credentials prefix="ksql" title={t('clusterConfig.isKsqlDbSecured')} />
+          <SSLForm prefix="ksql.keystore" title={t('clusterConfig.ksqlDbKeystore')} />
         </>
       )}
     </>

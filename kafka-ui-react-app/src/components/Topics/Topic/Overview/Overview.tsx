@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import type { Partition, Replica } from 'generated-sources';
 import BytesFormatted from 'components/common/BytesFormatted/BytesFormatted';
 import Table from 'components/common/NewTable';
@@ -13,6 +14,7 @@ import * as S from './Overview.styled';
 import ActionsCell from './ActionsCell';
 
 const Overview: React.FC = () => {
+  const { t } = useTranslation();
   const { clusterName, topicName } = useAppParams<RouteParamsClusterTopic>();
   const { data } = useTopicDetails({ clusterName, topicName });
 
@@ -37,12 +39,12 @@ const Overview: React.FC = () => {
   const columns = React.useMemo<ColumnDef<Partition>[]>(
     () => [
       {
-        header: 'Partition ID',
+        header: t('topic.partitionId'),
         enableSorting: false,
         accessorKey: 'partition',
       },
       {
-        header: 'Replicas',
+        header: t('topic.replicas'),
         enableSorting: false,
 
         accessorKey: 'replicas',
@@ -56,7 +58,7 @@ const Overview: React.FC = () => {
               leader={leader}
               outOfSync={!inSync}
               key={broker}
-              title={leader ? 'Leader' : ''}
+              title={leader ? t('topic.leader') : ''}
             >
               {broker}
             </S.Replica>
@@ -64,13 +66,13 @@ const Overview: React.FC = () => {
         },
       },
       {
-        header: 'First Offset',
+        header: t('topic.firstOffset'),
         enableSorting: false,
         accessorKey: 'offsetMin',
       },
-      { header: 'Next Offset', enableSorting: false, accessorKey: 'offsetMax' },
+      { header: t('topic.nextOffset'), enableSorting: false, accessorKey: 'offsetMax' },
       {
-        header: 'Message Count',
+        header: t('topic.messageCount'),
         enableSorting: false,
         accessorKey: `messageCount`,
       },
@@ -81,21 +83,21 @@ const Overview: React.FC = () => {
         cell: ActionsCell,
       },
     ],
-    []
+    [t]
   );
   return (
     <>
       <Metrics.Wrapper>
         <Metrics.Section>
-          <Metrics.Indicator label="Partitions">
+          <Metrics.Indicator label={t('common.partitions')}>
             {data?.partitionCount}
           </Metrics.Indicator>
-          <Metrics.Indicator label="Replication Factor">
+          <Metrics.Indicator label={t('topic.replicationFactor')}>
             {data?.replicationFactor}
           </Metrics.Indicator>
           <Metrics.Indicator
-            label="URP"
-            title="Under replicated partitions"
+            label={t('broker.urp')}
+            title={t('broker.underReplicatedPartitions')}
             isAlert
             alertType={
               data?.underReplicatedPartitions === 0 ? 'success' : 'error'
@@ -112,7 +114,7 @@ const Overview: React.FC = () => {
             )}
           </Metrics.Indicator>
           <Metrics.Indicator
-            label="In Sync Replicas"
+            label={t('broker.inSyncReplicas')}
             isAlert
             alertType={
               data?.inSyncReplicas === data?.replicas ? 'success' : 'error'
@@ -125,21 +127,21 @@ const Overview: React.FC = () => {
             ) : (
               data?.inSyncReplicas
             )}
-            <Metrics.LightText> of {data?.replicas}</Metrics.LightText>
+            <Metrics.LightText>{t('topic.ofTotal', { current: data?.inSyncReplicas, total: data?.replicas })}</Metrics.LightText>
           </Metrics.Indicator>
-          <Metrics.Indicator label="Type">
-            <Tag color="gray">{data?.internal ? 'Internal' : 'External'}</Tag>
+          <Metrics.Indicator label={t('common.type')}>
+            <Tag color="gray">{data?.internal ? t('topic.internal') : t('topic.external')}</Tag>
           </Metrics.Indicator>
-          <Metrics.Indicator label="Segment Size" title="">
+          <Metrics.Indicator label={t('broker.segmentSize')} title="">
             <BytesFormatted value={data?.segmentSize} />
           </Metrics.Indicator>
-          <Metrics.Indicator label="Segment Count">
+          <Metrics.Indicator label={t('broker.segmentCount')}>
             {data?.segmentCount}
           </Metrics.Indicator>
-          <Metrics.Indicator label="Clean Up Policy">
-            <Tag color="gray">{data?.cleanUpPolicy || 'Unknown'}</Tag>
+          <Metrics.Indicator label={t('topic.cleanupPolicy')}>
+            <Tag color="gray">{data?.cleanUpPolicy || t('common.unknown')}</Tag>
           </Metrics.Indicator>
-          <Metrics.Indicator label="Message Count">
+          <Metrics.Indicator label={t('topic.messageCount')}>
             {messageCount}
           </Metrics.Indicator>
         </Metrics.Section>
@@ -148,7 +150,7 @@ const Overview: React.FC = () => {
         columns={columns}
         data={newData}
         enableSorting
-        emptyMessage="No Partitions found "
+        emptyMessage={t('topic.noPartitionsFound')}
       />
     </>
   );

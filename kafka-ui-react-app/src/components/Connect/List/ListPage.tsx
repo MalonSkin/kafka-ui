@@ -1,4 +1,5 @@
 import React, { Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 import useAppParams from 'lib/hooks/useAppParams';
 import { clusterConnectorNewRelativePath, ClusterNameRoute } from 'lib/paths';
 import ClusterContext from 'components/contexts/ClusterContext';
@@ -14,6 +15,7 @@ import { useConnectors } from 'lib/hooks/api/kafkaConnect';
 import List from './List';
 
 const ListPage: React.FC = () => {
+  const { t } = useTranslation();
   const { isReadOnly } = React.useContext(ClusterContext);
   const { clusterName } = useAppParams<ClusterNameRoute>();
 
@@ -31,7 +33,7 @@ const ListPage: React.FC = () => {
 
   return (
     <>
-      <PageHeading text="Connectors">
+      <PageHeading text={t('connector.connectors')}>
         {!isReadOnly && (
           <ActionButton
             buttonType="primary"
@@ -42,29 +44,29 @@ const ListPage: React.FC = () => {
               action: Action.CREATE,
             }}
           >
-            Create Connector
+            {t('connector.createConnector')}
           </ActionButton>
         )}
       </PageHeading>
       <Metrics.Wrapper>
         <Metrics.Section>
           <Metrics.Indicator
-            label="Connectors"
-            title="Total number of connectors"
+            label={t('connector.connectors')}
+            title={t('connector.totalConnectors')}
             fetching={isLoading}
           >
             {connectorsMetrics?.length || '-'}
           </Metrics.Indicator>
           <Metrics.Indicator
-            label="Failed Connectors"
-            title="Number of failed connectors"
+            label={t('connector.failedConnectors')}
+            title={t('connector.failedConnectors')}
             fetching={isLoading}
           >
             {numberOfFailedConnectors ?? '-'}
           </Metrics.Indicator>
           <Metrics.Indicator
-            label="Failed Tasks"
-            title="Number of failed tasks"
+            label={t('connector.failedTasks')}
+            title={t('connector.failedTasks')}
             fetching={isLoading}
           >
             {numberOfFailedTasks ?? '-'}
@@ -72,7 +74,7 @@ const ListPage: React.FC = () => {
         </Metrics.Section>
       </Metrics.Wrapper>
       <ControlPanelWrapper hasInput>
-        <Search placeholder="Search by Connect Name, Status or Type" />
+        <Search placeholder={t('connector.searchByConnectName')} />
       </ControlPanelWrapper>
       <Suspense fallback={<PageLoader />}>
         <List />

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import Input from 'components/common/Input/Input';
 import { useFormContext } from 'react-hook-form';
 import ControlledSelect from 'components/common/Select/ControlledSelect';
@@ -9,6 +10,8 @@ import SSLForm from 'widgets/ClusterConfigForm/common/SSLForm';
 import Credentials from 'widgets/ClusterConfigForm/common/Credentials';
 
 const Metrics = () => {
+  // 引入 i18n 翻译函数
+  const { t } = useTranslation();
   const { setValue, watch } = useFormContext();
   const visibleMetrics = !!watch('metrics');
   const toggleMetrics = () =>
@@ -27,22 +30,22 @@ const Metrics = () => {
   return (
     <>
       <SectionHeader
-        title="Metrics"
+        title={t('clusterConfig.metrics')}
         adding={!visibleMetrics}
-        addButtonText="Configure Metrics"
+        addButtonText={t('clusterConfig.configureMetrics')}
         onClick={toggleMetrics}
       />
       {visibleMetrics && (
         <>
           <ControlledSelect
             name="metrics.type"
-            label="Metrics Type"
-            placeholder="Choose metrics type"
+            label={t('clusterConfig.metricsType')}
+            placeholder={t('clusterConfig.chooseMetricsType')}
             options={METRICS_OPTIONS}
           />
           <S.Port>
             <Input
-              label="Port *"
+              label={t('clusterConfig.portRequired')}
               name="metrics.port"
               type="number"
               positiveOnly
@@ -50,7 +53,7 @@ const Metrics = () => {
             />
           </S.Port>
           <Credentials prefix="metrics" />
-          <SSLForm prefix="metrics.keystore" title="Metrics Keystore" />
+          <SSLForm prefix="metrics.keystore" title={t('clusterConfig.metricsKeystore')} />
         </>
       )}
     </>

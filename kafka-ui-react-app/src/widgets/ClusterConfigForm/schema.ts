@@ -1,12 +1,13 @@
 import { isArray } from 'lodash';
 import { object, string, number, array, boolean, mixed, lazy } from 'yup';
+import i18n from 'i18n/config';
 
-const requiredString = string().required('required field');
+const requiredString = string().required(i18n.t('validation.requiredField'));
 
 const portSchema = number()
-  .positive('positive only')
-  .typeError('numbers only')
-  .required('required');
+  .positive(i18n.t('validation.positiveOnly'))
+  .typeError(i18n.t('validation.numbersOnly'))
+  .required(i18n.t('validation.required'));
 
 const bootstrapServerSchema = object({
   host: requiredString,
@@ -18,7 +19,7 @@ const sslSchema = lazy((value) => {
     return object({
       location: string().when('password', {
         is: (v: string) => !!v,
-        then: (schema) => schema.required('required field'),
+        then: (schema) => schema.required(i18n.t('validation.requiredField')),
       }),
       password: string(),
     });
@@ -33,11 +34,11 @@ const urlWithAuthSchema = lazy((value) => {
       isAuth: boolean(),
       username: string().when('isAuth', {
         is: true,
-        then: (schema) => schema.required('required field'),
+        then: (schema) => schema.required(i18n.t('validation.requiredField')),
       }),
       password: string().when('isAuth', {
         is: true,
-        then: (schema) => schema.required('required field'),
+        then: (schema) => schema.required(i18n.t('validation.requiredField')),
       }),
       keystore: sslSchema,
     });
@@ -51,11 +52,11 @@ const kafkaConnectSchema = object({
   isAuth: boolean(),
   username: string().when('isAuth', {
     is: true,
-    then: (schema) => schema.required('required field'),
+    then: (schema) => schema.required(i18n.t('validation.requiredField')),
   }),
   password: string().when('isAuth', {
     is: true,
-    then: (schema) => schema.required('required field'),
+    then: (schema) => schema.required(i18n.t('validation.requiredField')),
   }),
   keystore: sslSchema,
 });
@@ -70,16 +71,16 @@ const kafkaConnectsSchema = lazy((value) => {
 const metricsSchema = lazy((value) => {
   if (typeof value === 'object') {
     return object({
-      type: string().oneOf(['JMX', 'PROMETHEUS']).required('required field'),
+      type: string().oneOf(['JMX', 'PROMETHEUS']).required(i18n.t('validation.requiredField')),
       port: portSchema,
       isAuth: boolean(),
       username: string().when('isAuth', {
         is: true,
-        then: (schema) => schema.required('required field'),
+        then: (schema) => schema.required(i18n.t('validation.requiredField')),
       }),
       password: string().when('isAuth', {
         is: true,
-        then: (schema) => schema.required('required field'),
+        then: (schema) => schema.required(i18n.t('validation.requiredField')),
       }),
       keystore: sslSchema,
     });
@@ -132,7 +133,7 @@ const authSchema = lazy((value) => {
   if (typeof value === 'object') {
     return object({
       method: string()
-        .required('required field')
+        .required(i18n.t('validation.requiredField'))
         .oneOf([
           'SASL/JAAS',
           'SASL/GSSAPI',
@@ -160,7 +161,7 @@ const authSchema = lazy((value) => {
               'SASL/AWS IAM',
             ].includes(v);
           },
-          then: (schema) => schema.required('required field'),
+          then: (schema) => schema.required(i18n.t('validation.requiredField')),
         }),
       keystore: lazy((_, { parent }) => {
         if (parent.method === 'mTLS') {
@@ -179,9 +180,9 @@ const authSchema = lazy((value) => {
 
 const formSchema = object({
   name: string()
-    .required('required field')
-    .min(3, 'Cluster name must be at least 3 characters'),
-  readOnly: boolean().required('required field'),
+    .required(i18n.t('validation.requiredField'))
+    .min(3, i18n.t('validation.clusterNameMinLength')),
+  readOnly: boolean().required(i18n.t('validation.requiredField')),
   bootstrapServers: array().of(bootstrapServerSchema).min(1),
   truststore: sslSchema,
   auth: authSchema,

@@ -2,6 +2,8 @@ import React from 'react';
 import Alert from 'components/common/Alert/Alert';
 import toast, { ToastType } from 'react-hot-toast';
 import { ErrorResponse } from 'generated-sources';
+// 引入 i18n 国际化配置，用于通知消息的多语言支持
+import i18n from 'i18n/config';
 
 interface ServerResponse {
   status: number;
@@ -51,10 +53,11 @@ export const showAlert = (
   );
 };
 
+// 成功通知默认标题使用 i18n
 export const showSuccessAlert = (options: AlertOptions) => {
   showAlert('success', {
     ...options,
-    title: options.title || 'Success',
+    title: options.title || i18n.t('common.success'),
   });
 };
 
@@ -72,14 +75,16 @@ export const showServerError = async (
     showAlert('error', {
       id: response.url,
       title: `${response.status} ${response.statusText}`,
-      message: body?.message || 'An error occurred',
+      // 服务器错误消息使用 i18n
+      message: body?.message || i18n.t('error.anErrorOccurred'),
       ...options,
     });
   } else {
     showAlert('error', {
       id: 'server-error',
-      title: `Something went wrong`,
-      message: 'An error occurred',
+      // 网络错误标题和消息使用 i18n
+      title: i18n.t('error.somethingWentWrong'),
+      message: i18n.t('error.anErrorOccurred'),
       ...options,
     });
   }

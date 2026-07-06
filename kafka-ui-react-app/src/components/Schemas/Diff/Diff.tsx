@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { SchemaSubject } from 'generated-sources';
 import {
   clusterSchemaComparePath,
@@ -28,6 +29,7 @@ export interface DiffProps {
 }
 
 const Diff: React.FC<DiffProps> = ({ versions, areVersionsFetched }) => {
+  const { t } = useTranslation();
   const { clusterName, subject } = useAppParams<ClusterSubjectParam>();
   const navigate = useNavigate();
   const location = useLocation();
@@ -74,8 +76,8 @@ const Diff: React.FC<DiffProps> = ({ versions, areVersionsFetched }) => {
   return (
     <>
       <PageHeading
-        text={`${subject} compare versions`}
-        backText="Schema Registry"
+        text={t('schema.compareVersionsTitle', { subject })}
+        backText={t('schema.backToSchemaRegistry')}
         backTo={clusterSchemasPath(clusterName)}
       />
       <BackButton
@@ -83,7 +85,7 @@ const Diff: React.FC<DiffProps> = ({ versions, areVersionsFetched }) => {
         buttonSize="S"
         onClick={() => navigate(-1)}
       >
-        Back
+        {t('common.backButton')}
       </BackButton>
       <S.Section>
         {areVersionsFetched ? (
@@ -123,7 +125,7 @@ const Diff: React.FC<DiffProps> = ({ versions, areVersionsFetched }) => {
                         disabled={isSubmitting}
                         options={versions.map((type) => ({
                           value: type.version,
-                          label: `Version ${type.version}`,
+                          label: t('schema.versionLabel', { version: type.version }),
                         }))}
                       />
                     )}
@@ -166,7 +168,7 @@ const Diff: React.FC<DiffProps> = ({ versions, areVersionsFetched }) => {
                         disabled={isSubmitting}
                         options={versions.map((type) => ({
                           value: type.version,
-                          label: `Version ${type.version}`,
+                          label: t('schema.versionLabel', { version: type.version }),
                         }))}
                       />
                     )}

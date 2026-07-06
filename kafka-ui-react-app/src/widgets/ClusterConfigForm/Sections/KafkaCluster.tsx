@@ -12,8 +12,12 @@ import { InputLabel } from 'components/common/Input/InputLabel.styled';
 import Checkbox from 'components/common/Checkbox/Checkbox';
 import SectionHeader from 'widgets/ClusterConfigForm/common/SectionHeader';
 import SSLForm from 'widgets/ClusterConfigForm/common/SSLForm';
+import { useTranslation } from 'react-i18next';
 
 const KafkaCluster: React.FC = () => {
+  // 引入 i18n 翻译函数
+
+  const { t } = useTranslation();
   const { control, watch, setValue } = useFormContext();
 
   const { fields, append, remove } = useFieldArray({
@@ -38,23 +42,23 @@ const KafkaCluster: React.FC = () => {
 
   return (
     <>
-      <Heading level={3}>Kafka Cluster</Heading>
+      <Heading level={3}>{t('clusterConfig.kafkaCluster')}</Heading>
       <Input
-        label="Cluster name *"
+        label={t('clusterConfig.clusterNameRequired')}
         type="text"
         name="name"
         withError
-        hint="this name will help you recognize the cluster in the application interface"
+        hint={t('clusterConfig.clusterNameHint')}
       />
       <Checkbox
         name="readOnly"
-        label="Read-only mode"
-        hint="allows you to run an application in read-only mode for a specific cluster"
+        label={t('clusterConfig.readOnlyMode')}
+        hint={t('clusterConfig.readOnlyHint')}
       />
       <div>
-        <InputLabel htmlFor="bootstrapServers">Bootstrap Servers *</InputLabel>
+        <InputLabel htmlFor="bootstrapServers">{t('clusterConfig.bootstrapServers')} *</InputLabel>
         <InputHint>
-          the list of Kafka brokers that you want to connect to
+          {t('clusterConfig.bootstrapServersHint')}
         </InputHint>
         <S.GroupFieldWrapper>
           {fields.map((field, index) => (
@@ -62,7 +66,7 @@ const KafkaCluster: React.FC = () => {
               <div>
                 <Input
                   name={`bootstrapServers.${index}.host`}
-                  placeholder="Host"
+                  placeholder={t('common.host')}
                   type="text"
                   inputSize="L"
                   withError
@@ -71,14 +75,14 @@ const KafkaCluster: React.FC = () => {
               <div>
                 <Input
                   name={`bootstrapServers.${index}.port`}
-                  placeholder="Port"
+                  placeholder={t('common.port')}
                   type="number"
                   positiveOnly
                   withError
                 />
               </div>
               <S.BootstrapServerActions
-                aria-label="deleteProperty"
+                aria-label={t('common.remove')}
                 onClick={() => remove(index)}
               >
                 <CloseCircleIcon aria-hidden />
@@ -96,27 +100,27 @@ const KafkaCluster: React.FC = () => {
               onClick={() => append({ host: '', port: '' })}
             >
               <PlusIcon />
-              Add Bootstrap Server
+              {t('clusterConfig.addBootstrapServer')}
             </Button>
           </div>
         </S.GroupFieldWrapper>
       </div>
       <hr />
       <SectionHeader
-        title="Truststore"
-        addButtonText="Configure Truststore"
+        title={t('clusterConfig.truststore')}
+        addButtonText={t('clusterConfig.configureTruststore')}
         adding={!hasTrustStore}
         onClick={toggleSection('truststore')}
       />
-      {hasTrustStore && <SSLForm prefix="truststore" title="Truststore" />}
+      {hasTrustStore && <SSLForm prefix="truststore" title={t('clusterConfig.truststore')} />}
       <hr />
       <SectionHeader
-        title="SSL Keystore"
-        addButtonText="Configure SSL Keystore"
+        title={t('clusterConfig.sslKeystore')}
+        addButtonText={t('clusterConfig.configureSslKeystore')}
         adding={!hasSslKeystore}
         onClick={toggleSection('sslKeystore')}
       />
-      {hasSslKeystore && <SSLForm prefix="sslKeystore" title="SSL Keystore" />}
+      {hasSslKeystore && <SSLForm prefix="sslKeystore" title={t('clusterConfig.sslKeystore')} />}
     </>
   );
 };

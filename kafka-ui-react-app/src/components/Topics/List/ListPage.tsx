@@ -1,4 +1,5 @@
 import React, { Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { clusterTopicNewRelativePath } from 'lib/paths';
 import { PER_PAGE } from 'lib/constants';
@@ -14,6 +15,7 @@ import TopicTable from 'components/Topics/List/TopicTable';
 import { Action, ResourceType } from 'generated-sources';
 
 const ListPage: React.FC = () => {
+  const { t } = useTranslation();
   const { isReadOnly } = React.useContext(ClusterContext);
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -46,7 +48,7 @@ const ListPage: React.FC = () => {
 
   return (
     <>
-      <PageHeading text="Topics">
+      <PageHeading text={t('common.topics')}>
         {!isReadOnly && (
           <ActionButton
             buttonType="primary"
@@ -57,19 +59,19 @@ const ListPage: React.FC = () => {
               action: Action.CREATE,
             }}
           >
-            <PlusIcon /> Add a Topic
+            <PlusIcon /> {t('topic.createTopic')}
           </ActionButton>
         )}
       </PageHeading>
       <ControlPanelWrapper hasInput>
-        <Search placeholder="Search by Topic Name" />
+        <Search placeholder={t('topic.searchByTopicName')} />
         <label>
           <Switch
             name="ShowInternalTopics"
             checked={!searchParams.has('hideInternal')}
             onChange={handleSwitch}
           />
-          Show Internal Topics
+          {t('topic.showInternalTopics')}
         </label>
       </ControlPanelWrapper>
       <Suspense fallback={<PageLoader />}>

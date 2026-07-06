@@ -1,4 +1,5 @@
 import React from 'react';
+import i18n from 'i18n/config';
 
 import { NoWrap } from './BytesFormatted.styled';
 
@@ -13,7 +14,7 @@ const BytesFormatted: React.FC<Props> = ({ value, precision = 0 }) => {
   const formattedValue = React.useMemo((): string => {
     try {
       const bytes = typeof value === 'string' ? parseInt(value, 10) : value;
-      if (Number.isNaN(bytes) || (bytes && bytes < 0)) return `-Bytes`;
+      if (Number.isNaN(bytes) || (bytes && bytes < 0)) return i18n.t('common.invalidBytes');
       if (!bytes || bytes < 1024) return `${Math.ceil(bytes || 0)} ${sizes[0]}`;
       const pow = Math.floor(Math.log2(bytes) / 10);
       const multiplier = 10 ** (precision < 0 ? 0 : precision);
@@ -21,7 +22,7 @@ const BytesFormatted: React.FC<Props> = ({ value, precision = 0 }) => {
         sizes[pow]
       }`;
     } catch (e) {
-      return `-Bytes`;
+      return i18n.t('common.invalidBytes');
     }
   }, [precision, value]);
 

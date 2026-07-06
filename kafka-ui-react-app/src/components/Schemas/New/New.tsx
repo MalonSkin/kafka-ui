@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { NewSchemaSubjectRaw } from 'redux/interfaces';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { ErrorMessage } from '@hookform/error-message';
@@ -43,19 +44,22 @@ const schemaCreate = async (
   });
 };
 
-const validationSchema = yup.object().shape({
-  subject: yup
-    .string()
-    .required('Subject is required.')
-    .matches(
-      SCHEMA_NAME_VALIDATION_PATTERN,
-      'Only alphanumeric, _, -, and . allowed'
-    ),
-  schema: yup.string().required('Schema is required.'),
-  schemaType: yup.string().required('Schema Type is required.'),
-});
+// 构建校验规则：传入 t 函数以支持 i18n
+const createValidationSchema = (t: (key: string) => string) =>
+  yup.object().shape({
+    subject: yup
+      .string()
+      .required(t('validation.subjectRequired'))
+      .matches(
+        SCHEMA_NAME_VALIDATION_PATTERN,
+        t('validation.subjectPattern')
+      ),
+    schema: yup.string().required(t('validation.schemaRequired')),
+    schemaType: yup.string().required(t('validation.schemaTypeRequired')),
+  });
 
 const New: React.FC = () => {
+  const { t } = useTranslation();
   const { clusterName } = useAppParams<ClusterNameRoute>();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -64,7 +68,7 @@ const New: React.FC = () => {
     defaultValues: {
       schemaType: SchemaType.AVRO,
     },
-    resolver: yupResolver(validationSchema),
+    resolver: yupResolver(createValidationSchema(t)),
   });
   const {
     register,
@@ -93,16 +97,16 @@ const New: React.FC = () => {
   return (
     <FormProvider {...methods}>
       <PageHeading
-        text="Create"
-        backText="Schema Registry"
+        text={t('common.create')}
+        backText={t('common.schemaRegistry')}
         backTo={clusterSchemasPath(clusterName)}
       />
       <S.Form onSubmit={handleSubmit(onSubmit)}>
         <div>
-          <InputLabel>Subject *</InputLabel>
+          <InputLabel>{t('schema.subject')} *</InputLabel>
           <Input
             inputSize="M"
-            placeholder="Schema Name"
+            placeholder={t('schema.subject')}
             autoFocus
             name="subject"
             autoComplete="off"
@@ -114,10 +118,11 @@ const New: React.FC = () => {
         </div>
 
         <div>
-          <InputLabel>Schema *</InputLabel>
+          <InputLabel>{t('schema.schema')} *</InputLabel>
           <Textarea
             {...register('schema', {
-              required: 'Schema is required.',
+              // Schema 为必填项
+              required: t('validation.schemaRequired'),
             })}
             disabled={isSubmitting}
           />
@@ -127,7 +132,7 @@ const New: React.FC = () => {
         </div>
 
         <div>
-          <InputLabel>Schema Type *</InputLabel>
+          <InputLabel>{t('schema.schemaType')} *</InputLabel>
           <Controller
             control={control}
             name="schemaType"
@@ -155,7 +160,7 @@ const New: React.FC = () => {
           type="submit"
           disabled={!isValid || isSubmitting || !isDirty}
         >
-          Submit
+          {t('common.submit')}
         </Button>
       </S.Form>
     </FormProvider>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import * as C from 'components/common/Tag/Tag.styled';
 import * as Metrics from 'components/common/Metrics';
 import getTagColor from 'components/common/Tag/getTagColor';
@@ -9,6 +10,7 @@ import { useConnector, useConnectorTasks } from 'lib/hooks/api/kafkaConnect';
 import getTaskMetrics from './getTaskMetrics';
 
 const Overview: React.FC = () => {
+  const { t } = useTranslation();
   const routerProps = useAppParams<RouterParamsClusterConnectConnector>();
 
   const { data: connector } = useConnector(routerProps);
@@ -24,24 +26,24 @@ const Overview: React.FC = () => {
     <Metrics.Wrapper>
       <Metrics.Section>
         {connector.status?.workerId && (
-          <Metrics.Indicator label="Worker">
+          <Metrics.Indicator label={t('connector.worker')}>
             {connector.status.workerId}
           </Metrics.Indicator>
         )}
-        <Metrics.Indicator label="Type">{connector.type}</Metrics.Indicator>
+        <Metrics.Indicator label={t('common.type')}>{connector.type}</Metrics.Indicator>
         {connector.config['connector.class'] && (
-          <Metrics.Indicator label="Class">
+          <Metrics.Indicator label={t('connector.class')}>
             {connector.config['connector.class']}
           </Metrics.Indicator>
         )}
-        <Metrics.Indicator label="State">
+        <Metrics.Indicator label={t('common.state')}>
           <C.Tag color={getTagColor(connector.status.state)}>
             {connector.status.state}
           </C.Tag>
         </Metrics.Indicator>
-        <Metrics.Indicator label="Tasks Running">{running}</Metrics.Indicator>
+        <Metrics.Indicator label={t('connector.tasksRunning')}>{running}</Metrics.Indicator>
         <Metrics.Indicator
-          label="Tasks Failed"
+          label={t('connector.tasksFailed')}
           isAlert
           alertType={failed > 0 ? 'error' : 'success'}
         >

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { SortOrder, Topic, TopicColumnsToSort } from 'generated-sources';
 import { ColumnDef } from '@tanstack/react-table';
 import Table, { SizeCell } from 'components/common/NewTable';
@@ -14,6 +15,8 @@ import ActionsCell from './ActionsCell';
 import BatchActionsbar from './BatchActionsBar';
 
 const TopicTable: React.FC = () => {
+  // 引入 i18n 翻译函数
+  const { t } = useTranslation();
   const { clusterName } = useAppParams<{ clusterName: ClusterName }>();
   const [searchParams] = useSearchParams();
   const { isReadOnly } = React.useContext(ClusterContext);
@@ -36,18 +39,18 @@ const TopicTable: React.FC = () => {
     () => [
       {
         id: TopicColumnsToSort.NAME,
-        header: 'Topic Name',
+        header: t('topic.topicName'),
         accessorKey: 'name',
         cell: TopicTitleCell,
       },
       {
         id: TopicColumnsToSort.TOTAL_PARTITIONS,
-        header: 'Partitions',
+        header: t('topic.partitions'),
         accessorKey: 'partitionCount',
       },
       {
         id: TopicColumnsToSort.OUT_OF_SYNC_REPLICAS,
-        header: 'Out of sync replicas',
+        header: t('topic.outOfSyncReplicas'),
         accessorKey: 'partitions',
         cell: ({ getValue }) => {
           const partitions = getValue<Topic['partitions']>();
@@ -61,12 +64,12 @@ const TopicTable: React.FC = () => {
         },
       },
       {
-        header: 'Replication Factor',
+        header: t('topic.replicationFactor'),
         accessorKey: 'replicationFactor',
         enableSorting: false,
       },
       {
-        header: 'Number of messages',
+        header: t('topic.totalMessage'),
         accessorKey: 'partitions',
         enableSorting: false,
         cell: ({ getValue }) => {
@@ -81,7 +84,7 @@ const TopicTable: React.FC = () => {
       },
       {
         id: TopicColumnsToSort.SIZE,
-        header: 'Size',
+        header: t('topic.totalSize'),
         accessorKey: 'segmentSize',
         cell: SizeCell,
       },
@@ -91,7 +94,7 @@ const TopicTable: React.FC = () => {
         cell: ActionsCell,
       },
     ],
-    []
+    [t]
   );
 
   return (
@@ -105,7 +108,7 @@ const TopicTable: React.FC = () => {
       enableRowSelection={
         !isReadOnly ? (row) => !row.original.internal : undefined
       }
-      emptyMessage="No topics found"
+      emptyMessage={t('topic.noTopicsFound')}
     />
   );
 };

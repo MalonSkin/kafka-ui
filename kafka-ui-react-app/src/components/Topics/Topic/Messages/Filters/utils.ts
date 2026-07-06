@@ -1,6 +1,7 @@
 import { Partition, SeekType } from 'generated-sources';
 import compact from 'lodash/compact';
 import { Option } from 'react-multi-select-component';
+import i18n from 'i18n/config';
 
 export const filterOptions = (options: Option[], filter: string) => {
   if (!filter) {
@@ -53,7 +54,7 @@ export const getSelectedPartitionsFromSeekToParam = (
         if (selectedPartitionIds?.includes(partition)) {
           return {
             value: partition,
-            label: `Partition #${partition.toString()}`,
+            label: i18n.t('topic.partitionNumber', { number: partition.toString() }),
           };
         }
 
@@ -64,6 +65,6 @@ export const getSelectedPartitionsFromSeekToParam = (
 
   return partitions.map(({ partition }) => ({
     value: partition,
-    label: `Partition #${partition.toString()}`,
+    label: i18n.t('topic.partitionNumber', { number: partition.toString() }),
   }));
 };

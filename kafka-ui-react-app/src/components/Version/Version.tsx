@@ -5,8 +5,12 @@ import { useLatestVersion } from 'lib/hooks/api/latestVersion';
 import { formatTimestamp } from 'lib/dateTimeHelpers';
 
 import * as S from './Version.styled';
+import { useTranslation } from 'react-i18next';
 
 const Version: React.FC = () => {
+  // 引入 i18n 翻译函数
+
+  const { t } = useTranslation();
   const { data: latestVersionInfo = {} } = useLatestVersion();
   const { buildTime, commitId, isLatestRelease, version } =
     latestVersionInfo.build;
@@ -21,9 +25,9 @@ const Version: React.FC = () => {
     <S.Wrapper>
       {!isLatestRelease && (
         <S.OutdatedWarning
-          title={`Your app version is outdated. Latest version is ${
-            versionTag || 'UNKNOWN'
-          }`}
+          title={t('common.versionOutdated', {
+            version: versionTag || 'UNKNOWN',
+          })}
         >
           <WarningIcon />
         </S.OutdatedWarning>
@@ -32,7 +36,7 @@ const Version: React.FC = () => {
       {commitId && (
         <div>
           <S.CurrentCommitLink
-            title="Current commit"
+            title={t('topic.currentCommit')}
             target="__blank"
             href={gitCommitPath(commitId)}
           >

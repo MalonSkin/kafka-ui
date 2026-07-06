@@ -7,24 +7,27 @@ import useAppParams from 'lib/hooks/useAppParams';
 import { RouteParamsClusterTopic } from 'lib/paths';
 import { getDefaultSerdeName } from 'components/Topics/Topic/Messages/getDefaultSerdeName';
 import { MESSAGES_PER_PAGE } from 'lib/constants';
+// 引入 i18n 实例，用于在模块作用域内获取翻译文案
+import i18n from 'i18n/config';
 
 import MessagesTable from './MessagesTable';
 import FiltersContainer from './Filters/FiltersContainer';
 
+// Seek 方向选项，label 通过 i18n 实例在模块作用域翻译
 export const SeekDirectionOptionsObj = {
   [SeekDirection.FORWARD]: {
     value: SeekDirection.FORWARD,
-    label: 'Oldest First',
+    label: i18n.t('topic.oldestFirst'),
     isLive: false,
   },
   [SeekDirection.BACKWARD]: {
     value: SeekDirection.BACKWARD,
-    label: 'Newest First',
+    label: i18n.t('topic.newestFirst'),
     isLive: false,
   },
   [SeekDirection.TAILING]: {
     value: SeekDirection.TAILING,
-    label: 'Live Mode',
+    label: i18n.t('topic.liveMode'),
     isLive: true,
   },
 };

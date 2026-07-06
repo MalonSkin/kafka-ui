@@ -8,6 +8,7 @@ import { compact } from 'lodash';
 import Ajv, { DefinedError } from 'ajv/dist/2020';
 import addFormats from 'ajv-formats';
 import upperFirst from 'lodash/upperFirst';
+import i18n from 'i18n/config';
 
 jsf.option('fillProperties', false);
 jsf.option('alwaysFakeOptionals', true);
@@ -41,7 +42,7 @@ export const getDefaultValues = (serdes: TopicSerdeSuggestion) => {
 
 export const getPartitionOptions = (partitions: Partition[]) =>
   partitions.map(({ partition }) => ({
-    label: `Partition #${partition}`,
+    label: i18n.t('topic.partitionNumber', { number: partition }),
     value: partition,
   }));
 
@@ -71,7 +72,7 @@ export const validateBySchema = (
   try {
     parsedSchema = JSON.parse(schema);
   } catch (e) {
-    return [`Error in parsing the "${type}" field schema`];
+    return [i18n.t('topic.errorParsingFieldSchema', { type })];
   }
   if (parsedSchema.type === 'string') {
     return [];
@@ -79,7 +80,7 @@ export const validateBySchema = (
   try {
     parsedValue = JSON.parse(value);
   } catch (e) {
-    return [`Error in parsing the "${type}" field value`];
+    return [i18n.t('topic.errorParsingFieldValue', { type })];
   }
   try {
     const ajv = new Ajv();

@@ -16,6 +16,7 @@ import toast from 'react-hot-toast';
 import { useQuery } from '@tanstack/react-query';
 import { messagesApiClient } from 'lib/api';
 import { StopLoading } from 'components/Topics/Topic/Messages/Messages.styled';
+import i18n from 'i18n/config';
 
 interface UseTopicMessagesProps {
   clusterName: ClusterName;
@@ -152,13 +153,13 @@ export const useTopicMessages = ({
         {
           loading: (
             <>
-              <div>Consuming messages...</div>
+              <div>{i18n.t('topic.consumingMessages')}</div>
               &nbsp;
-              <StopLoading onClick={abortFetchData}>Abort</StopLoading>
+              <StopLoading onClick={abortFetchData}>{i18n.t('common.abort')}</StopLoading>
             </>
           ),
-          success: 'Cancelled',
-          error: 'Something went wrong. Please try again.',
+          success: i18n.t('common.cancelled'),
+          error: i18n.t('error.somethingWentWrong'),
         },
         {
           id: 'messages',

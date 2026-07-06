@@ -9,6 +9,8 @@ import {
   showServerError,
   showSuccessAlert,
 } from 'lib/errorHandling';
+// 引入 i18n 用于通知消息国际化
+import i18n from 'i18n/config';
 import {
   ExecuteKsqlRequest,
   KsqlResponse,
@@ -54,8 +56,8 @@ const getFormattedErrorFromTableData = (
 
   if (!responseValues || !responseValues.length) {
     return {
-      title: 'Unknown error',
-      message: 'Recieved empty response',
+      title: i18n.t('error.unknown'),
+      message: i18n.t('ksqlDb.emptyResponse'),
     };
   }
 
@@ -67,7 +69,7 @@ const getFormattedErrorFromTableData = (
   } else {
     const [type, errorCode, messageText, statementText, entities] =
       responseValues[0];
-    title = `[Error #${errorCode}] ${type}`;
+    title = i18n.t('error.errorWithCode', { code: errorCode, type });
     message =
       (entities?.length ? `[${entities.join(', ')}] ` : '') +
       (statementText ? `"${statementText}" ` : '') +
@@ -132,7 +134,7 @@ export const useKsqlkDbSSE = ({ clusterName, pipeId }: UseKsqlkDbSSEProps) => {
               case 'Query Result':
                 showSuccessAlert({
                   id: `${url}-querySuccess`,
-                  title: 'Query succeed',
+                  title: i18n.t('ksqlDb.queryResult'),
                   message: '',
                 });
                 break;
@@ -164,13 +166,13 @@ export const useKsqlkDbSSE = ({ clusterName, pipeId }: UseKsqlkDbSSEProps) => {
         {
           loading: (
             <>
-              <div>Consuming query execution result...</div>
+              <div>{i18n.t('ksqlDb.query')}</div>
               &nbsp;
-              <StopLoading onClick={abortFetchData}>Abort</StopLoading>
+              <StopLoading onClick={abortFetchData}>{i18n.t('common.close')}</StopLoading>
             </>
           ),
-          success: 'Cancelled',
-          error: 'Something went wrong. Please try again.',
+          success: i18n.t('common.cancel'),
+          error: i18n.t('error.somethingWentWrong'),
         },
         {
           id: 'messages',

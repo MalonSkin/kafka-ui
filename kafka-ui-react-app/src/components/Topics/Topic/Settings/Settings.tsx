@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import Table from 'components/common/NewTable';
 import { RouteParamsClusterTopic } from 'lib/paths';
 import useAppParams from 'lib/hooks/useAppParams';
@@ -32,28 +33,30 @@ const DefaultValueCell: React.FC<CellContext<TopicConfig, unknown>> = ({
 };
 
 const Settings: React.FC = () => {
+  // 引入 i18n 翻译函数
+  const { t } = useTranslation();
   const props = useAppParams<RouteParamsClusterTopic>();
   const { data = [] } = useTopicConfig(props);
 
   const columns = React.useMemo<ColumnDef<TopicConfig>[]>(
     () => [
       {
-        header: 'Key',
+        header: t('common.key'),
         accessorKey: 'name',
         cell: ValueCell,
       },
       {
-        header: 'Value',
+        header: t('common.value'),
         accessorKey: 'value',
         cell: ValueCell,
       },
       {
-        header: 'Default Value',
+        header: t('topic.defaultValue'),
         accessorKey: 'defaultValue',
         cell: DefaultValueCell,
       },
     ],
-    []
+    [t]
   );
 
   return <Table columns={columns} data={data} />;

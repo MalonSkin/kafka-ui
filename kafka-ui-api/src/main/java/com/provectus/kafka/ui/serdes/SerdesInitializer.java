@@ -278,4 +278,25 @@ public class SerdesInitializer {
   private Pattern nullablePattern(@Nullable String pattern) {
     return pattern == null ? null : Pattern.compile(pattern);
   }
+
+  /**
+   * 为未在配置文件中声明的集群（如动态添加的集群）创建默认的 ClusterSerdes。
+   * 仅注册内置的 StringSerde 和 fallback serde，避免 NullPointerException。
+   */
+  public ClusterSerdes createDefault() {
+    Map<String, SerdeInstance> registeredSerdes = new LinkedHashMap<>();
+    builtInSerdeClasses.forEach((name, clazz) -> {
+      BuiltInSerde serde = createSerdeInstance(clazz);
+      if (autoConfigureSerde(serde, PropertyResolverImpl.empty(), PropertyResolverImpl.empty())) {
+        registeredSerdes.put(name, new SerdeInstance(name, serde, null, null, null));
+      }
+    });
+    registerTopicRelatedSerde(registeredSerdes);
+    return new ClusterSerdes(
+        registeredSerdes,
+        null,
+        null,
+        createFallbackSerde()
+    );
+  }
 }

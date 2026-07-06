@@ -7,12 +7,14 @@ import useAppParams from 'lib/hooks/useAppParams';
 import { Dropdown } from 'components/common/Dropdown';
 import { useClearTopicMessages, useTopicDetails } from 'lib/hooks/api/topics';
 import { ActionDropdownItem } from 'components/common/ActionComponent';
+import { useTranslation } from 'react-i18next';
 
 const ActionsCell: React.FC<CellContext<Partition, unknown>> = ({ row }) => {
   const { clusterName, topicName } = useAppParams<RouteParamsClusterTopic>();
   const { data } = useTopicDetails({ clusterName, topicName });
   const { isReadOnly } = React.useContext(ClusterContext);
   const { partition } = row.original;
+  const { t } = useTranslation();
 
   const clearMessages = useClearTopicMessages(clusterName, [partition]);
 
@@ -32,7 +34,7 @@ const ActionsCell: React.FC<CellContext<Partition, unknown>> = ({ row }) => {
           value: topicName,
         }}
       >
-        Clear Messages
+        {t('topic.clearMessages')}
       </ActionDropdownItem>
     </Dropdown>
   );

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Cluster, ClusterFeaturesEnum } from 'generated-sources';
 import {
   clusterBrokersPath,
@@ -23,6 +24,7 @@ const ClusterMenu: React.FC<Props> = ({
   cluster: { name, status, features },
   singleMode,
 }) => {
+  const { t } = useTranslation();
   const hasFeatureConfigured = (key: ClusterFeaturesEnum) =>
     features?.includes(key);
   const [isOpen, setIsOpen] = React.useState(!!singleMode);
@@ -37,30 +39,30 @@ const ClusterMenu: React.FC<Props> = ({
       />
       {isOpen && (
         <S.List>
-          <ClusterMenuItem to={clusterBrokersPath(name)} title="Brokers" />
-          <ClusterMenuItem to={clusterTopicsPath(name)} title="Topics" />
+          <ClusterMenuItem to={clusterBrokersPath(name)} title={t('common.brokers')} />
+          <ClusterMenuItem to={clusterTopicsPath(name)} title={t('common.topics')} />
           <ClusterMenuItem
             to={clusterConsumerGroupsPath(name)}
-            title="Consumers"
+            title={t('common.consumers')}
           />
           {hasFeatureConfigured(ClusterFeaturesEnum.SCHEMA_REGISTRY) && (
             <ClusterMenuItem
               to={clusterSchemasPath(name)}
-              title="Schema Registry"
+              title={t('common.schemaRegistry')}
             />
           )}
           {hasFeatureConfigured(ClusterFeaturesEnum.KAFKA_CONNECT) && (
             <ClusterMenuItem
               to={clusterConnectorsPath(name)}
-              title="Kafka Connect"
+              title={t('common.kafkaConnect')}
             />
           )}
           {hasFeatureConfigured(ClusterFeaturesEnum.KSQL_DB) && (
-            <ClusterMenuItem to={clusterKsqlDbPath(name)} title="KSQL DB" />
+            <ClusterMenuItem to={clusterKsqlDbPath(name)} title={t('common.ksqlDb')} />
           )}
           {(hasFeatureConfigured(ClusterFeaturesEnum.KAFKA_ACL_VIEW) ||
             hasFeatureConfigured(ClusterFeaturesEnum.KAFKA_ACL_EDIT)) && (
-            <ClusterMenuItem to={clusterACLPath(name)} title="ACL" />
+            <ClusterMenuItem to={clusterACLPath(name)} title={t('common.acl')} />
           )}
         </S.List>
       )}

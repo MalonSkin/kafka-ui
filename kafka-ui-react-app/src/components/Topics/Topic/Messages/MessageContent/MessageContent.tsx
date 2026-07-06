@@ -5,6 +5,7 @@ import { SchemaType, TopicMessageTimestampTypeEnum } from 'generated-sources';
 import { formatTimestamp } from 'lib/dateTimeHelpers';
 
 import * as S from './MessageContent.styled';
+import { useTranslation } from 'react-i18next';
 
 type Tab = 'key' | 'content' | 'headers';
 
@@ -31,6 +32,8 @@ const MessageContent: React.FC<MessageContentProps> = ({
   keySerde,
   valueSerde,
 }) => {
+  // 引入 i18n 翻译函数
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = React.useState<Tab>('content');
   const activeTabContent = () => {
     switch (activeTab) {
@@ -74,21 +77,21 @@ const MessageContent: React.FC<MessageContentProps> = ({
                 $active={activeTab === 'key'}
                 onClick={handleKeyTabClick}
               >
-                Key
+                {t('topic.key')}
               </S.Tab>
               <S.Tab
                 $active={activeTab === 'content'}
                 type="button"
                 onClick={handleContentTabClick}
               >
-                Value
+                {t('common.value')}
               </S.Tab>
               <S.Tab
                 $active={activeTab === 'headers'}
                 type="button"
                 onClick={handleHeadersTabClick}
               >
-                Headers
+                {t('topic.headers')}
               </S.Tab>
             </S.Tabs>
             <EditorViewer
@@ -99,29 +102,30 @@ const MessageContent: React.FC<MessageContentProps> = ({
           </S.ContentBox>
           <S.MetadataWrapper>
             <S.Metadata>
-              <S.MetadataLabel>Timestamp</S.MetadataLabel>
+              <S.MetadataLabel>{t('topic.timestamp')}</S.MetadataLabel>
               <span>
                 <S.MetadataValue>{formatTimestamp(timestamp)}</S.MetadataValue>
-                <S.MetadataMeta>Timestamp type: {timestampType}</S.MetadataMeta>
+                {/* 时间戳类型，复用 timestamp 翻译并拼接 type 后缀 */}
+                <S.MetadataMeta>{t('topic.timestamp')} type: {timestampType}</S.MetadataMeta>
               </span>
             </S.Metadata>
 
             <S.Metadata>
-              <S.MetadataLabel>Key Serde</S.MetadataLabel>
+              <S.MetadataLabel>{t('topic.keySerde')}</S.MetadataLabel>
               <span>
                 <S.MetadataValue>{keySerde}</S.MetadataValue>
                 <S.MetadataMeta>
-                  Size: <BytesFormatted value={keySize} />
+                  {t('topic.sizeLabel')} <BytesFormatted value={keySize} />
                 </S.MetadataMeta>
               </span>
             </S.Metadata>
 
             <S.Metadata>
-              <S.MetadataLabel>Value Serde</S.MetadataLabel>
+              <S.MetadataLabel>{t('topic.valueSerde')}</S.MetadataLabel>
               <span>
                 <S.MetadataValue>{valueSerde}</S.MetadataValue>
                 <S.MetadataMeta>
-                  Size: <BytesFormatted value={contentSize} />
+                  {t('topic.sizeLabel')} <BytesFormatted value={contentSize} />
                 </S.MetadataMeta>
               </span>
             </S.Metadata>

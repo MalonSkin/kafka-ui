@@ -1,10 +1,12 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { FullConnectorInfo } from 'generated-sources';
 import { CellContext } from '@tanstack/react-table';
 
 const RunningTasksCell: React.FC<CellContext<FullConnectorInfo, unknown>> = ({
   row,
 }) => {
+  const { t } = useTranslation();
   const { tasksCount, failedTasksCount } = row.original;
 
   if (!tasksCount) {
@@ -13,7 +15,7 @@ const RunningTasksCell: React.FC<CellContext<FullConnectorInfo, unknown>> = ({
 
   return (
     <>
-      {tasksCount - (failedTasksCount || 0)} of {tasksCount}
+      {t('connector.runningTasksOf', { running: tasksCount - (failedTasksCount || 0), total: tasksCount })}
     </>
   );
 };

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useConnectorTasks } from 'lib/hooks/api/kafkaConnect';
 import useAppParams from 'lib/hooks/useAppParams';
 import { RouterParamsClusterConnectConnector } from 'lib/paths';
@@ -15,16 +16,18 @@ const ExpandedTaskRow: React.FC<{ row: Row<Task> }> = ({ row }) => {
 const MAX_LENGTH = 100;
 
 const Tasks: React.FC = () => {
+  // 引入 i18n 翻译函数
+  const { t } = useTranslation();
   const routerProps = useAppParams<RouterParamsClusterConnectConnector>();
   const { data = [] } = useConnectorTasks(routerProps);
 
   const columns = React.useMemo<ColumnDef<Task>[]>(
     () => [
-      { header: 'ID', accessorKey: 'status.id' },
-      { header: 'Worker', accessorKey: 'status.workerId' },
-      { header: 'State', accessorKey: 'status.state', cell: TagCell },
+      { header: t('common.id'), accessorKey: 'status.id' },
+      { header: t('connector.worker'), accessorKey: 'status.workerId' },
+      { header: t('common.state'), accessorKey: 'status.state', cell: TagCell },
       {
-        header: 'Trace',
+        header: t('connector.trace'),
         accessorKey: 'status.trace',
         enableSorting: false,
         cell: ({ getValue }) => {
@@ -41,14 +44,14 @@ const Tasks: React.FC = () => {
         cell: ActionsCellTasks,
       },
     ],
-    []
+    [t]
   );
 
   return (
     <Table
       columns={columns}
       data={data}
-      emptyMessage="No tasks found"
+      emptyMessage={t('connector.noTasksFound')}
       enableSorting
       getRowCanExpand={(row) => row.original.status.trace?.length > 0}
       renderSubComponent={ExpandedTaskRow}

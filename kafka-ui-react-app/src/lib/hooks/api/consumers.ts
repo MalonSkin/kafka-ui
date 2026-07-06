@@ -8,6 +8,8 @@ import {
   SortOrder,
 } from 'generated-sources';
 import { showSuccessAlert } from 'lib/errorHandling';
+// 引入 i18n 用于通知消息国际化
+import i18n from 'i18n/config';
 
 export type ConsumerGroupID = ConsumerGroup['groupId'];
 
@@ -52,7 +54,7 @@ export const useDeleteConsumerGroupMutation = ({
     {
       onSuccess: () => {
         showSuccessAlert({
-          message: `Consumer ${consumerGroupID} group deleted`,
+          message: i18n.t('consumerGroup.groupDeleted', { consumerGroupID }),
         });
         queryClient.invalidateQueries([
           'clusters',
@@ -79,7 +81,7 @@ export const useResetConsumerGroupOffsetsMutation = ({
     {
       onSuccess: () => {
         showSuccessAlert({
-          message: `Consumer ${consumerGroupID} group offsets reset`,
+          message: i18n.t('consumerGroup.offsetsReset', { consumerGroupID }),
         });
         queryClient.invalidateQueries([
           'clusters',

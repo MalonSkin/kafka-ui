@@ -13,6 +13,7 @@ import * as C from 'components/Topics/shared/Form/TopicForm.styled';
 import { ConfigSource } from 'generated-sources';
 
 import * as S from './CustomParams.styled';
+import { useTranslation } from 'react-i18next';
 
 export interface Props {
   config?: TopicConfigParams;
@@ -33,6 +34,8 @@ const CustomParamField: React.FC<Props> = ({
   existingFields,
   setExistingFields,
 }) => {
+  // 引入 i18n 翻译函数
+  const { t } = useTranslation();
   const {
     formState: { errors },
     setValue,
@@ -73,15 +76,15 @@ const CustomParamField: React.FC<Props> = ({
   return (
     <C.Column>
       <div>
-        <InputLabel>Custom Parameter *</InputLabel>
+        <InputLabel>{t('topic.customParameter')} *</InputLabel>
         <Controller
           control={control}
-          rules={{ required: 'Custom Parameter is required.' }}
+          rules={{ required: t('validation.customParamRequired') }}
           name={`customParams.${index}.name`}
           render={({ field: { value, name, onChange } }) => (
             <Select
               name={name}
-              placeholder="Select"
+              placeholder={t('common.select')}
               disabled={isDisabled}
               minWidth="270px"
               onChange={onChange}
@@ -98,13 +101,13 @@ const CustomParamField: React.FC<Props> = ({
         </FormError>
       </div>
       <div>
-        <InputLabel>Value *</InputLabel>
+        <InputLabel>{t('common.value')} *</InputLabel>
         <Input
           name={`customParams.${index}.value` as const}
           hookFormOptions={{
-            required: 'Value is required.',
+            required: t('validation.valueRequired'),
           }}
-          placeholder="Value"
+          placeholder={t('common.value')}
           defaultValue={field.value}
           autoComplete="off"
           disabled={isDisabled}
@@ -123,7 +126,7 @@ const CustomParamField: React.FC<Props> = ({
           onKeyDown={(e: React.KeyboardEvent) =>
             e.code === 'Space' && remove(index)
           }
-          title={`Delete customParam field ${index}`}
+          title={t('topic.deleteCustomParamField', { index })}
         >
           <CloseCircleIcon aria-hidden />
         </IconButtonWrapper>

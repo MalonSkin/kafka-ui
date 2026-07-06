@@ -1,6 +1,9 @@
 import React, { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const CheckmarkIcon: FC = () => {
+  // i18n: 获取国际化翻译函数
+  const { t } = useTranslation();
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -11,7 +14,7 @@ const CheckmarkIcon: FC = () => {
       aria-describedby="desc"
       role="img"
     >
-      <title>Checkmark</title>
+      <title>{t('common.checkmark')}</title>
       <desc>A line styled icon from Orion Icon Library.</desc>
       <path
         data-name="layer1"

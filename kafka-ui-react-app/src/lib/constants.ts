@@ -1,5 +1,6 @@
 import { SelectOption } from 'components/common/Select/Select';
 import { ConfigurationParameters, ConsumerGroupState } from 'generated-sources';
+import i18n from 'i18n/config';
 
 declare global {
   interface Window {
@@ -82,7 +83,7 @@ export const AUTH_OPTIONS: SelectOption[] = [
   { value: 'SASL/PLAIN', label: 'SASL/PLAIN' },
   { value: 'SASL/SCRAM-256', label: 'SASL/SCRAM-256' },
   { value: 'SASL/SCRAM-512', label: 'SASL/SCRAM-512' },
-  { value: 'Delegation tokens', label: 'Delegation tokens' },
+  { value: 'Delegation tokens', label: i18n.t('clusterConfig.delegationTokens') },
   { value: 'SASL/LDAP', label: 'SASL/LDAP' },
   { value: 'SASL/AWS IAM', label: 'SASL/AWS IAM' },
   // { value: 'mTLS', label: 'mTLS' },
@@ -99,11 +100,11 @@ export const METRICS_OPTIONS: SelectOption[] = [
 
 export const CONSUMER_GROUP_STATE_TOOLTIPS: Record<ConsumerGroupState, string> =
   {
-    EMPTY: 'The group exists but has no members.',
-    STABLE: 'Consumers are happily consuming and have assigned partitions.',
+    EMPTY: i18n.t('consumerGroup.stateTooltip.empty'),
+    STABLE: i18n.t('consumerGroup.stateTooltip.stable'),
     PREPARING_REBALANCE:
-      'Something has changed, and the reassignment of partitions is required.',
-    COMPLETING_REBALANCE: 'Partition reassignment is in progress.',
-    DEAD: 'The group is going to be removed. It might be due to the inactivity, or the group is being migrated to different group coordinator.',
+      i18n.t('consumerGroup.stateTooltip.preparingRebalance'),
+    COMPLETING_REBALANCE: i18n.t('consumerGroup.stateTooltip.completingRebalance'),
+    DEAD: i18n.t('consumerGroup.stateTooltip.dead'),
     UNKNOWN: '',
   } as const;

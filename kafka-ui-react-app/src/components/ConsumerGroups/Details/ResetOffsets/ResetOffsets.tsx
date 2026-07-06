@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { clusterConsumerGroupsPath, ClusterGroupParam } from 'lib/paths';
 import 'react-datepicker/dist/react-datepicker.css';
 import PageHeading from 'components/common/PageHeading/PageHeading';
@@ -13,6 +14,7 @@ import {
 import Form from './Form';
 
 const ResetOffsets: React.FC = () => {
+  const { t } = useTranslation();
   const routerParams = useAppParams<ClusterGroupParam>();
 
   const { consumerGroupID } = routerParams;
@@ -40,7 +42,7 @@ const ResetOffsets: React.FC = () => {
       <PageHeading
         text={consumerGroupID}
         backTo={clusterConsumerGroupsPath(routerParams.clusterName)}
-        backText="Consumers"
+        backText={t('consumerGroup.backToConsumers')}
       />
       <Form
         defaultValues={defaultValues}

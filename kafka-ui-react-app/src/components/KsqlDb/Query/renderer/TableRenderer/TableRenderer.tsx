@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { KsqlTableResponse } from 'generated-sources';
 import TableHeaderCell from 'components/common/table/TableHeaderCell/TableHeaderCell';
 import { nanoid } from '@reduxjs/toolkit';
@@ -29,6 +30,7 @@ function hasJsonStructure(str: string | Record<string, unknown>): boolean {
 }
 
 const TableRenderer: React.FC<TableRendererProps> = ({ table }) => {
+  const { t } = useTranslation();
   const rows = React.useMemo(() => {
     return (table.values || []).map((row) => {
       return {
@@ -61,7 +63,7 @@ const TableRenderer: React.FC<TableRendererProps> = ({ table }) => {
         <tbody>
           {ths.length === 0 ? (
             <tr>
-              <td colSpan={ths.length}>No tables or streams found</td>
+              <td colSpan={ths.length}>{t('ksqlDb.noTablesOrStreams')}</td>
             </tr>
           ) : (
             rows.map((row) => (

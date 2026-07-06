@@ -7,6 +7,7 @@ import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 import { Action, ResourceType } from 'generated-sources';
 import { ActionButton } from 'components/common/ActionComponent';
+import { useTranslation } from 'react-i18next';
 
 import * as S from './Statistics.styles';
 import Metrics from './Metrics';
@@ -14,6 +15,7 @@ import Metrics from './Metrics';
 const Statistics: React.FC = () => {
   const params = useAppParams<RouteParamsClusterTopic>();
   const analyzeTopic = useAnalyzeTopic(params);
+  const { t } = useTranslation();
 
   return (
     <QueryErrorResetBoundary>
@@ -35,7 +37,7 @@ const Statistics: React.FC = () => {
                   value: params.topicName,
                 }}
               >
-                Start Analysis
+                {t('topic.startAnalysis')}
               </ActionButton>
             </S.ProgressContainer>
           )}

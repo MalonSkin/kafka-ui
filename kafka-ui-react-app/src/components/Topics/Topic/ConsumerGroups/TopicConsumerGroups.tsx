@@ -8,8 +8,12 @@ import Table, { LinkCell, TagCell } from 'components/common/NewTable';
 import Search from 'components/common/Search/Search';
 
 import * as S from './TopicConsumerGroups.styled';
+import { useTranslation } from 'react-i18next';
 
 const TopicConsumerGroups: React.FC = () => {
+  // 引入 i18n 翻译函数
+
+  const { t } = useTranslation();
   const [keyword, setKeyword] = React.useState('');
   const { clusterName, topicName } = useAppParams<RouteParamsClusterTopic>();
 
@@ -29,7 +33,7 @@ const TopicConsumerGroups: React.FC = () => {
   const columns = React.useMemo<ColumnDef<ConsumerGroup>[]>(
     () => [
       {
-        header: 'Consumer Group ID',
+        header: t('consumerGroup.groupId'),
         accessorKey: 'groupId',
         enableSorting: false,
         // eslint-disable-next-line react/no-unstable-nested-components
@@ -43,17 +47,17 @@ const TopicConsumerGroups: React.FC = () => {
         ),
       },
       {
-        header: 'Active Consumers',
+        header: t('consumerGroup.activeConsumers'),
         accessorKey: 'members',
         enableSorting: false,
       },
       {
-        header: 'Consumer Lag',
+        header: t('consumerGroup.consumerLag'),
         accessorKey: 'consumerLag',
         enableSorting: false,
       },
       {
-        header: 'Coordinator',
+        header: t('consumerGroup.coordinator'),
         accessorKey: 'coordinator',
         enableSorting: false,
         cell: ({ getValue }) => {
@@ -65,20 +69,20 @@ const TopicConsumerGroups: React.FC = () => {
         },
       },
       {
-        header: 'State',
+        header: t('common.state'),
         accessorKey: 'state',
         enableSorting: false,
         cell: TagCell,
       },
     ],
-    []
+    [t]
   );
   return (
     <>
       <S.SearchWrapper>
         <Search
           onChange={setKeyword}
-          placeholder="Search by Consumer Name"
+          placeholder={t('consumerGroup.searchByConsumerName')}
           value={keyword}
         />
       </S.SearchWrapper>
@@ -86,7 +90,7 @@ const TopicConsumerGroups: React.FC = () => {
         columns={columns}
         data={consumerGroups}
         enableSorting
-        emptyMessage="No active consumer groups"
+        emptyMessage={t('topic.noActiveConsumerGroups')}
       />
     </>
   );

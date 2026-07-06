@@ -21,6 +21,7 @@ import { BASE_PARAMS } from 'lib/constants';
 import Select from 'components/common/Select/Select';
 import { Button } from 'components/common/Button/Button';
 import Search from 'components/common/Search/Search';
+import { useTranslation } from 'react-i18next';
 import FilterModal, {
   FilterEdit,
 } from 'components/Topics/Topic/Messages/Filters/FilterModal';
@@ -39,6 +40,8 @@ import { useTopicDetails } from 'lib/hooks/api/topics';
 import { InputLabel } from 'components/common/Input/InputLabel.styled';
 import { getSerdeOptions } from 'components/Topics/Topic/SendMessage/utils';
 import { useSerdes } from 'lib/hooks/api/topicMessages';
+// 引入 i18n 实例，用于在模块作用域内获取翻译文案
+import i18n from 'i18n/config';
 
 import * as S from './Filters.styled';
 import {
@@ -76,9 +79,10 @@ export interface ActiveMessageFilter {
 
 const PER_PAGE = 100;
 
+// Seek 类型选项，label 通过 i18n 实例在模块作用域翻译
 export const SeekTypeOptions = [
-  { value: SeekType.OFFSET, label: 'Offset' },
-  { value: SeekType.TIMESTAMP, label: 'Timestamp' },
+  { value: SeekType.OFFSET, label: i18n.t('topic.offset') },
+  { value: SeekType.TIMESTAMP, label: i18n.t('topic.timestamp') },
 ];
 
 const Filters: React.FC<FiltersProps> = ({
@@ -93,6 +97,8 @@ const Filters: React.FC<FiltersProps> = ({
   setMessageType,
   messageEventType,
 }) => {
+  // 引入 i18n 翻译函数
+  const { t } = useTranslation();
   const { clusterName, topicName } = useAppParams<RouteParamsClusterTopic>();
   const location = useLocation();
   const navigate = useNavigate();
@@ -196,7 +202,7 @@ const Filters: React.FC<FiltersProps> = ({
       partitions.map((partition: Partition) => {
         return {
           value: partition.partition,
-          label: `Partition #${partition.partition.toString()}`,
+          label: t('topic.partitionNumber', { number: partition.partition.toString() }),
         };
       })
     );
@@ -449,7 +455,7 @@ const Filters: React.FC<FiltersProps> = ({
       <div>
         <S.FilterInputs>
           <div>
-            <InputLabel>Seek Type</InputLabel>
+            <InputLabel>{t('topic.seekType')}</InputLabel>
             <S.SeekTypeSelectorWrapper>
               <S.SeekTypeSelect
                 id="selectSeekType"
@@ -467,7 +473,7 @@ const Filters: React.FC<FiltersProps> = ({
                   type="text"
                   inputSize="M"
                   value={offset}
-                  placeholder="Offset"
+                  placeholder={t('topic.offset')}
                   onChange={({ target: { value } }) => setOffset(value)}
                   disabled={isTailing}
                 />
@@ -476,30 +482,30 @@ const Filters: React.FC<FiltersProps> = ({
                   selected={timestamp}
                   onChange={(date: Date | null) => setTimestamp(date)}
                   showTimeInput
-                  timeInputLabel="Time:"
+                  timeInputLabel={t('topic.timeLabel')}
                   dateFormat="MMM d, yyyy HH:mm"
-                  placeholderText="Select timestamp"
+                  placeholderText={t('topic.selectTimestamp')}
                   disabled={isTailing}
                 />
               )}
             </S.SeekTypeSelectorWrapper>
           </div>
           <div>
-            <InputLabel>Partitions</InputLabel>
+            <InputLabel>{t('common.partitions')}</InputLabel>
             <MultiSelect
               options={partitions.map((p) => ({
-                label: `Partition #${p.partition.toString()}`,
+                label: t('topic.partitionNumber', { number: p.partition.toString() }),
                 value: p.partition,
               }))}
               filterOptions={filterOptions}
               value={selectedPartitions}
               onChange={setSelectedPartitions}
-              labelledBy="Select partitions"
+              labelledBy={t('topic.selectPartitions')}
               disabled={isTailing}
             />
           </div>
           <div>
-            <InputLabel>Key Serde</InputLabel>
+            <InputLabel>{t('topic.keySerde')}</InputLabel>
             <Select
               id="selectKeySerdeOptions"
               aria-labelledby="selectKeySerdeOptions"
@@ -512,7 +518,7 @@ const Filters: React.FC<FiltersProps> = ({
             />
           </div>
           <div>
-            <InputLabel>Value Serde</InputLabel>
+            <InputLabel>{t('topic.valueSerde')}</InputLabel>
             <Select
               id="selectValueSerdeOptions"
               aria-labelledby="selectValueSerdeOptions"
@@ -524,7 +530,8 @@ const Filters: React.FC<FiltersProps> = ({
               disabled={isTailing}
             />
           </div>
-          <S.ClearAll onClick={handleClearAllFilters}>Clear all</S.ClearAll>
+          {/* 清除全部筛选条件 */}
+          <S.ClearAll onClick={handleClearAllFilters}>{t('topic.clearAll')}</S.ClearAll>
           <Button
             type="submit"
             buttonType="secondary"
@@ -535,7 +542,7 @@ const Filters: React.FC<FiltersProps> = ({
             }
             style={{ fontWeight: 500 }}
           >
-            {isFetching ? 'Cancel' : 'Submit'}
+            {isFetching ? t('common.cancel') : t('topic.submit')}
           </Button>
         </S.FilterInputs>
         <Select
@@ -548,11 +555,11 @@ const Filters: React.FC<FiltersProps> = ({
         />
       </div>
       <S.ActiveSmartFilterWrapper>
-        <Search placeholder="Search" disabled={isTailing} />
+        <Search placeholder={t('common.search')} disabled={isTailing} />
 
         <Button buttonType="secondary" buttonSize="M" onClick={toggle}>
           <PlusIcon />
-          Add Filters
+          {t('topic.addFilters')}
         </Button>
         {activeFilter.name && (
           <S.ActiveSmartFilter data-testid="activeSmartFilter">
@@ -602,37 +609,37 @@ const Filters: React.FC<FiltersProps> = ({
         </S.Message>
         <S.MessageLoading isLive={isTailing}>
           <S.MessageLoadingSpinner isFetching={isFetching} />
-          Loading messages.
+          {t('topic.loadingMessages')}
           <S.StopLoading
             onClick={() => {
               handleSSECancel();
               setIsTailing(false);
             }}
           >
-            Stop loading
+            {t('topic.stopLoading')}
           </S.StopLoading>
         </S.MessageLoading>
-        <S.Metric title="Elapsed Time">
+        <S.Metric title={t('topic.elapsedTime')}>
           <S.MetricsIcon>
             <ClockIcon />
           </S.MetricsIcon>
           <span>{Math.max(elapsedMs || 0, 0)} ms</span>
         </S.Metric>
-        <S.Metric title="Bytes Consumed">
+        <S.Metric title={t('topic.bytesConsumed')}>
           <S.MetricsIcon>
             <ArrowDownIcon />
           </S.MetricsIcon>
           <BytesFormatted value={bytesConsumed} />
         </S.Metric>
-        <S.Metric title="Messages Consumed">
+        <S.Metric title={t('topic.messagesConsumed')}>
           <S.MetricsIcon>
             <FileIcon />
           </S.MetricsIcon>
-          <span>{messagesConsumed} messages consumed</span>
+          <span>{t('topic.messagesConsumedCount', { count: messagesConsumed })}</span>
         </S.Metric>
         {!!filterApplyErrors && (
-          <S.Metric title="Errors">
-            <span>{filterApplyErrors} errors</span>
+          <S.Metric title={t('topic.errors')}>
+            <span>{t('topic.filterErrorsCount', { count: filterApplyErrors })}</span>
           </S.Metric>
         )}
       </S.FiltersMetrics>

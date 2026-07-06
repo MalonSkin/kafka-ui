@@ -1,3 +1,4 @@
+import i18n from 'i18n/config';
 import styled from 'styled-components';
 import DatePicker from 'react-datepicker';
 
@@ -10,7 +11,7 @@ export const OffsetsWrapper = styled.div`
 
 export const DatePickerInput = styled(DatePicker).attrs({
   showTimeInput: true,
-  timeInputLabel: 'Time:',
+  timeInputLabel: i18n.t('common.time') + '：',
   dateFormat: 'MMMM d, yyyy h:mm aa',
 })`
   height: 40px;

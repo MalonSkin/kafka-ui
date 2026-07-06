@@ -1,4 +1,5 @@
 import React, { Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 import { NavLink, Route, Routes } from 'react-router-dom';
 import useAppParams from 'lib/hooks/useAppParams';
 import {
@@ -18,6 +19,7 @@ import Config from './Config/Config';
 import Actions from './Actions/Actions';
 
 const DetailsPage: React.FC = () => {
+  const { t } = useTranslation();
   const { clusterName, connectName, connectorName } =
     useAppParams<RouterParamsClusterConnectConnector>();
 
@@ -26,7 +28,7 @@ const DetailsPage: React.FC = () => {
       <PageHeading
         text={connectorName}
         backTo={clusterConnectorsPath(clusterName)}
-        backText="Connectors"
+        backText={t('connector.backToConnectors')}
       >
         <Actions />
       </PageHeading>
@@ -41,7 +43,7 @@ const DetailsPage: React.FC = () => {
           className={({ isActive }) => (isActive ? 'is-active' : '')}
           end
         >
-          Tasks
+          {t('common.tasks')}
         </NavLink>
         <NavLink
           to={clusterConnectConnectorConfigPath(
@@ -51,7 +53,7 @@ const DetailsPage: React.FC = () => {
           )}
           className={({ isActive }) => (isActive ? 'is-active' : '')}
         >
-          Config
+          {t('connector.tabConfig')}
         </NavLink>
       </Navbar>
       <Suspense fallback={<PageLoader />}>

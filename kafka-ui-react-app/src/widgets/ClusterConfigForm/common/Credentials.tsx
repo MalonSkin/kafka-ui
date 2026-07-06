@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import Input from 'components/common/Input/Input';
 import * as S from 'widgets/ClusterConfigForm/ClusterConfigForm.styled';
 import Checkbox from 'components/common/Checkbox/Checkbox';
@@ -11,18 +12,21 @@ type CredentialsProps = {
 
 const Credentials: React.FC<CredentialsProps> = ({
   prefix,
-  title = 'Secured with auth?',
+  title,
 }) => {
+  // 引入 i18n 翻译函数
+  const { t } = useTranslation();
+  const displayTitle = title || t('clusterConfig.securedWithAuth');
   const { watch } = useFormContext();
 
   return (
     <S.GroupFieldWrapper>
-      <Checkbox name={`${prefix}.isAuth`} label={title} />
+      <Checkbox name={`${prefix}.isAuth`} label={displayTitle} />
       {watch(`${prefix}.isAuth`) && (
         <S.FlexRow>
           <S.FlexGrow1>
             <Input
-              label="Username *"
+              label={t('clusterConfig.usernameRequired')}
               type="text"
               name={`${prefix}.username`}
               withError
@@ -30,7 +34,7 @@ const Credentials: React.FC<CredentialsProps> = ({
           </S.FlexGrow1>
           <S.FlexGrow1>
             <Input
-              label="Password *"
+              label={t('clusterConfig.passwordRequired')}
               type="password"
               name={`${prefix}.password`}
               withError

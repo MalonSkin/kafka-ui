@@ -14,6 +14,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { ActionCanButton } from 'components/common/ActionComponent';
 import { isPermitted } from 'lib/permissions';
 import { useUserInfo } from 'lib/hooks/useUserInfo';
+import { useTranslation } from 'react-i18next';
 
 interface BatchActionsbarProps {
   rows: Row<Topic>[];
@@ -24,6 +25,8 @@ const BatchActionsbar: React.FC<BatchActionsbarProps> = ({
   rows,
   resetRowSelection,
 }) => {
+  // 引入 i18n 翻译函数
+  const { t } = useTranslation();
   const { clusterName } = useAppParams<{ clusterName: ClusterName }>();
   const confirm = useConfirm();
   const deleteTopic = useDeleteTopic(clusterName);
@@ -35,7 +38,8 @@ const BatchActionsbar: React.FC<BatchActionsbarProps> = ({
     await clearMessages.mutateAsync(topicName);
   };
   const deleteTopicsHandler = () => {
-    confirm('Are you sure you want to remove selected topics?', async () => {
+    // 确认批量删除选中 Topics 的提示
+    confirm(t('topic.batchDeleteConfirm'), async () => {
       try {
         await Promise.all(
           selectedTopics.map((topicName) => deleteTopic.mutateAsync(topicName))
@@ -48,8 +52,9 @@ const BatchActionsbar: React.FC<BatchActionsbarProps> = ({
   };
 
   const purgeTopicsHandler = () => {
+    // 确认批量清除选中 Topics 消息的提示
     confirm(
-      'Are you sure you want to purge messages of selected topics?',
+      t('topic.batchPurgeConfirm'),
       async () => {
         try {
           await Promise.all(
@@ -142,7 +147,7 @@ const BatchActionsbar: React.FC<BatchActionsbarProps> = ({
         disabled={!selectedTopics.length}
         canDoAction={canDeleteSelectedTopics}
       >
-        Delete selected topics
+        {t('topic.deleteSelectedTopics')}
       </ActionCanButton>
       <ActionCanButton
         buttonSize="M"
@@ -151,7 +156,7 @@ const BatchActionsbar: React.FC<BatchActionsbarProps> = ({
         canDoAction={canCopySelectedTopic}
         to={getCopyTopicPath()}
       >
-        Copy selected topic
+        {t('topic.copySelectedTopic')}
       </ActionCanButton>
       <ActionCanButton
         buttonSize="M"
@@ -160,7 +165,7 @@ const BatchActionsbar: React.FC<BatchActionsbarProps> = ({
         disabled={!selectedTopics.length}
         canDoAction={canPurgeSelectedTopics}
       >
-        Purge messages of selected topics
+        {t('topic.purgeSelectedTopics')}
       </ActionCanButton>
     </>
   );

@@ -16,6 +16,7 @@ import BytesFormatted from 'components/common/BytesFormatted/BytesFormatted';
 import { calculateTimer, formatTimestamp } from 'lib/dateTimeHelpers';
 import { Action, ResourceType } from 'generated-sources';
 import { ActionButton } from 'components/common/ActionComponent';
+import { useTranslation } from 'react-i18next';
 
 import * as S from './Statistics.styles';
 import Total from './Indicators/Total';
@@ -23,6 +24,8 @@ import SizeStats from './Indicators/SizeStats';
 import PartitionTable from './PartitionTable';
 
 const Metrics: React.FC = () => {
+  // 引入 i18n 翻译函数，用于替换硬编码英文标签
+  const { t } = useTranslation();
   const params = useAppParams<RouteParamsClusterTopic>();
 
   const [isAnalyzing, setIsAnalyzing] = useState(true);
@@ -63,10 +66,10 @@ const Metrics: React.FC = () => {
             value: params.topicName,
           }}
         >
-          Stop Analysis
+          {t('topic.stopAnalysis')}
         </ActionButton>
         <List>
-          <Label>Started at</Label>
+          <Label>{t('topic.startedAt')}</Label>
           <span>
             {formatTimestamp(data.progress.startedAt, {
               hour: 'numeric',
@@ -74,11 +77,11 @@ const Metrics: React.FC = () => {
               second: 'numeric',
             })}
           </span>
-          <Label>Passed since start</Label>
+          <Label>{t('topic.passedSinceStart')}</Label>
           <span>{calculateTimer(data.progress.startedAt as number)}</span>
-          <Label>Scanned messages</Label>
+          <Label>{t('topic.scannedMessages')}</Label>
           <span>{data.progress.msgsScanned}</span>
-          <Label>Scanned size</Label>
+          <Label>{t('topic.scannedSize')}</Label>
           <span>
             <BytesFormatted value={data.progress.bytesScanned} />
           </span>
@@ -111,16 +114,16 @@ const Metrics: React.FC = () => {
             value: params.topicName,
           }}
         >
-          Restart Analysis
+          {t('topic.restartAnalysis')}
         </ActionButton>
       </S.ActionsBar>
       <Informers.Wrapper>
         <Total {...totalStats} />
         {totalStats.keySize && (
-          <SizeStats stats={totalStats.keySize} title="Key size" />
+          <SizeStats stats={totalStats.keySize} title={t('topic.keySize')} />
         )}
         {totalStats.valueSize && (
-          <SizeStats stats={totalStats.valueSize} title="Value size" />
+          <SizeStats stats={totalStats.valueSize} title={t('topic.valueSize')} />
         )}
       </Informers.Wrapper>
       <PartitionTable data={partitionStats} />

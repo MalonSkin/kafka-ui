@@ -9,6 +9,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import { Link } from 'react-router-dom';
 import { useDeleteAppConfig } from 'lib/hooks/api/appConfig';
 import { showAlert } from 'lib/errorHandling';
+import { useTranslation } from 'react-i18next';
 
 
 interface ClusterTableActionsCellProps {
@@ -17,6 +18,8 @@ interface ClusterTableActionsCellProps {
 }
 
 const ClusterTableActionsCell: React.FC<ClusterTableActionsCellProps> = ({ row, refreshClusters }) => {
+  // 引入 i18n 翻译函数
+  const { t } = useTranslation();
   const { name } = row.original;
   const { data } = useGetUserInfo();
   const [openDialog, setOpenDialog] = useState(false);
@@ -46,8 +49,8 @@ const ClusterTableActionsCell: React.FC<ClusterTableActionsCellProps> = ({ row, 
     } catch (e) {
       showAlert('error', {
         id: 'app-config-delete-error',
-        title: 'Error deleting application config',
-        message: 'There was an error deleting the application config',
+        title: t('error.errorDeletingConfig'),
+        message: t('error.errorDeletingConfig'),
       });
     }
   };
@@ -66,16 +69,16 @@ const ClusterTableActionsCell: React.FC<ClusterTableActionsCellProps> = ({ row, 
       </Stack>
 
       <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <DialogTitle>确认删除</DialogTitle>
+        <DialogTitle>{t('dashboard.confirmDeleteClusterTitle')}</DialogTitle>
         <DialogContent>
-          <p>您确定要删除集群【{name}】吗？此操作不可逆。</p>
+          <p>{t('dashboard.confirmDeleteClusterMessage', { name })}</p>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog} color="primary">
-            取消
+            {t('common.cancel')}
           </Button>
           <Button onClick={handleConfirmDelete} color="error">
-            确认删除
+            {t('dashboard.confirmDelete')}
           </Button>
         </DialogActions>
       </Dialog>

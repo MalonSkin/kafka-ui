@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import Query from 'components/KsqlDb/Query/Query';
 import useAppParams from 'lib/hooks/useAppParams';
 import * as Metrics from 'components/common/Metrics';
@@ -21,6 +22,7 @@ import 'ace-builds/src-noconflict/ace';
 import TableView from './TableView';
 
 const KsqlDb: React.FC = () => {
+  const { t } = useTranslation();
   const { clusterName } = useAppParams<ClusterNameRoute>();
 
   const [tables, streams] = useKsqlkDb(clusterName);
@@ -29,7 +31,7 @@ const KsqlDb: React.FC = () => {
 
   return (
     <>
-      <PageHeading text="KSQL DB">
+      <PageHeading text={t('common.ksqlDb')}>
         <ActionButton
           to={clusterKsqlDbQueryRelativePath}
           buttonType="primary"
@@ -39,21 +41,21 @@ const KsqlDb: React.FC = () => {
             action: Action.EXECUTE,
           }}
         >
-          Execute KSQL Request
+          {t('ksqlDb.executeRequest')}
         </ActionButton>
       </PageHeading>
       <Metrics.Wrapper>
         <Metrics.Section>
           <Metrics.Indicator
-            label="Tables"
-            title="Tables"
+            label={t('ksqlDb.tables')}
+            title={t('ksqlDb.tables')}
             fetching={isFetching}
           >
             {tables.isSuccess ? tables.data.length : '-'}
           </Metrics.Indicator>
           <Metrics.Indicator
-            label="Streams"
-            title="Streams"
+            label={t('ksqlDb.streams')}
+            title={t('ksqlDb.streams')}
             fetching={isFetching}
           >
             {streams.isSuccess ? streams.data.length : '-'}
@@ -67,14 +69,14 @@ const KsqlDb: React.FC = () => {
             className={({ isActive }) => (isActive ? 'is-active' : '')}
             end
           >
-            Tables
+            {t('ksqlDb.tables')}
           </NavLink>
           <NavLink
             to={clusterKsqlDbStreamsPath(clusterName)}
             className={({ isActive }) => (isActive ? 'is-active' : '')}
             end
           >
-            Streams
+            {t('ksqlDb.streams')}
           </NavLink>
         </Navbar>
         <Routes>

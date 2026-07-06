@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from 'components/common/Button/Button';
 import { useForm, FormProvider } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -36,6 +37,8 @@ const ClusterConfigForm: React.FC<ClusterConfigFormProps> = ({
   initialValues = {},
   hasCustomConfig,
 }) => {
+  // 引入 i18n 翻译函数
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const methods = useForm<ClusterConfigFormValues>({
     mode: 'all',
@@ -66,8 +69,8 @@ const ClusterConfigForm: React.FC<ClusterConfigFormProps> = ({
     } catch (e) {
       showAlert('error', {
         id: 'app-config-update-error',
-        title: 'Error updating application config',
-        message: 'There was an error updating the application config',
+        title: t('error.errorUpdatingConfig'),
+        message: t('error.errorUpdatingConfig'),
       });
     }
   };
@@ -86,14 +89,14 @@ const ClusterConfigForm: React.FC<ClusterConfigFormProps> = ({
       const isConfigValid = getIsValidConfig(response, data.name);
       if (isConfigValid) {
         showSuccessAlert({
-          message: 'Configuration is valid',
+          message: t('clusterConfig.configurationIsValid'),
         });
       }
     } catch (e) {
       showAlert('error', {
         id: 'app-config-validate-error',
-        title: 'Error validating application config',
-        message: 'There was an error validating the application config',
+        title: t('error.errorValidatingConfig'),
+        message: t('error.errorValidatingConfig'),
       });
     }
     enableForm();
@@ -127,7 +130,7 @@ const ClusterConfigForm: React.FC<ClusterConfigFormProps> = ({
               onClick={onReset}
               disabled={isSubmitting}
             >
-              Reset
+              {t('common.reset')}
             </Button>
             <Button
               buttonSize="L"
@@ -135,7 +138,7 @@ const ClusterConfigForm: React.FC<ClusterConfigFormProps> = ({
               onClick={onValidate}
               disabled={isValidateDisabled}
             >
-              Validate
+              {t('clusterConfig.validateConfig')}
             </Button>
             <Button
               type="submit"
@@ -144,7 +147,7 @@ const ClusterConfigForm: React.FC<ClusterConfigFormProps> = ({
               disabled={isSubmitDisabled}
               inProgress={isSubmitting}
             >
-              Submit
+              {t('common.submit')}
             </Button>
           </S.ButtonWrapper>
         </FlexFieldset>

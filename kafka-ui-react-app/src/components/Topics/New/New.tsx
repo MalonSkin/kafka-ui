@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { TopicFormData } from 'redux/interfaces';
 import { FormProvider, useForm } from 'react-hook-form';
 import { ClusterNameRoute, clusterTopicsPath } from 'lib/paths';
@@ -19,6 +20,7 @@ enum Filters {
 }
 
 const New: React.FC = () => {
+  const { t } = useTranslation();
   const { clusterName } = useAppParams<ClusterNameRoute>();
   const methods = useForm<TopicFormData>({
     mode: 'onChange',
@@ -50,8 +52,8 @@ const New: React.FC = () => {
   return (
     <>
       <PageHeading
-        text={search ? 'Copy' : 'Create'}
-        backText="Topics"
+        text={search ? t('common.copy') : t('common.create')}
+        backText={t('common.topics')}
         backTo={clusterTopicsPath(clusterName)}
       />
       <FormProvider {...methods}>
